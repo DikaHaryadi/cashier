@@ -1,5 +1,7 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:makeci/content/controller.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -34,8 +36,7 @@ class _CalendarPemesananState extends State<CalendarPemesanan> {
     return Scaffold(
         body: SafeArea(
             child: GetBuilder<OrderController>(
-      builder: (orderController) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (orderController) => ListView(
         children: [
           TableCalendar(
             firstDay: DateTime.utc(2024, 1, 1),
@@ -59,25 +60,36 @@ class _CalendarPemesananState extends State<CalendarPemesanan> {
               return isSameDay(orderController.selectedDate.value, day);
             },
           ),
-          Expanded(
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: orderController.selectedDateOrders.length,
-              itemBuilder: (context, index) {
-                final order = orderController.selectedDateOrders[index];
-                return ListTile(
-                  title: Text('Total Harga: ${order['totalPrice']}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Menu: ${order['selectedMenu'].join(', ')}'),
-                      Text('Minuman: ${order['selectedDrink'].join(', ')}'),
-                    ],
-                  ),
-                );
-              },
+          AutoSizeText(
+            'Total Harga Hari Ini-> Rp. ${orderController.totalPriceHari.value}',
+            maxFontSize: 18,
+            minFontSize: 16,
+            style: GoogleFonts.aBeeZee(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
+          ),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: orderController.selectedDateOrders.length,
+            itemBuilder: (context, index) {
+              final order = orderController.selectedDateOrders[index];
+              return Column(
+                children: [
+                  ListTile(
+                    title: Text('Total Harga: ${order['totalPrice']}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Menu: ${order['selectedMenu'].join(', ')}'),
+                        Text('Minuman: ${order['selectedDrink'].join(', ')}'),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),

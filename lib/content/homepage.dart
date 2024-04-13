@@ -109,7 +109,7 @@ class HomePage extends StatelessWidget {
                                 ),
                               ),
                               AutoSizeText(
-                                'Rp. $menuPrice',
+                                'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
                                 maxFontSize: 14,
                                 minFontSize: 12,
                                 style: GoogleFonts.montserrat(
@@ -235,7 +235,7 @@ class HomePage extends StatelessWidget {
                                     color: Colors.black),
                               ),
                               AutoSizeText(
-                                'Rp. $drinkPrice',
+                                'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
                                 maxFontSize: 14,
                                 minFontSize: 12,
                                 style: GoogleFonts.montserrat(

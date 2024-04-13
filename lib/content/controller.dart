@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:intl/intl.dart';
 
 class OrderController extends GetxController {
   // Menggunakan Map untuk menyimpan harga menu dan minuman
@@ -14,7 +15,7 @@ class OrderController extends GetxController {
 
   final Map<String, int> drinkPrices = {
     'stee': 4000,
-    'air gelas': 500,
+    'air gelas': 1000,
     'lemineral': 2000,
     'es teh manis hangat': 5000,
     'es good day': 5000,
@@ -28,6 +29,8 @@ class OrderController extends GetxController {
   RxList<Map<String, dynamic>> selectedDateOrders =
       <Map<String, dynamic>>[].obs;
   RxList<Map<String, dynamic>> orderHistory = <Map<String, dynamic>>[].obs;
+  // Variabel untuk menyimpan total harga harian
+  RxInt totalPriceHari = 0.obs;
 
   // Variabel untuk menyimpan total harga menu dan minuman
   RxInt totalMenuPrice = 0.obs;
@@ -46,7 +49,7 @@ class OrderController extends GetxController {
       selectedDrink.add(item);
       totalDrinkPrice.value += drinkPrices[item] ?? 0;
     }
-    calculateTotalPrice();
+    updateTotalPrice(); // Panggil updateTotalPrice setiap kali ada perubahan
   }
 
   void removeDrink(String drink) {
@@ -63,6 +66,7 @@ class OrderController extends GetxController {
     calculateTotalPrice();
   }
 
+// Panggil updateTotalPrice saat ada perubahan pada pilihan menu atau minuman
   void toggleMenu(String item) {
     if (selectedMenu.contains(item)) {
       selectedMenu.remove(item);
@@ -71,7 +75,7 @@ class OrderController extends GetxController {
       selectedMenu.add(item);
       totalMenuPrice += menuPrices[item] ?? 0;
     }
-    calculateTotalPrice();
+    updateTotalPrice(); // Panggil updateTotalPrice setiap kali ada perubahan
   }
 
   void removeMenu(String menu) {
@@ -88,10 +92,31 @@ class OrderController extends GetxController {
     calculateTotalPrice();
   }
 
-  // Fungsi untuk menghitung total harga
+  // Panggil calculateTotalPrice saat ada perubahan pada pilihan menu atau minuman
+  void updateTotalPrice() {
+    // Panggil metode untuk menghitung total harga
+    calculateTotalPrice();
+
+    // Simpan total harga harian jika sudah lewat jam 22:00
+    if (DateTime.now().hour >= 22) {
+      calculateTotalPriceHari();
+    }
+    update();
+  }
+
+// Metode untuk menghitung total harga
   void calculateTotalPrice() {
     // Menyimpan total harga keseluruhan dengan menjumlahkan total harga menu dan minuman
     totalPrice.value = totalMenuPrice.value + totalDrinkPrice.value;
+
+    // Mendapatkan tanggal hari ini
+    DateTime currentDate = DateTime.now();
+
+    // Jika sudah lewat dari jam 22:00, hitung total harga untuk hari tersebut
+    if (currentDate.hour >= 22) {
+      // Hitung total harga harian
+      calculateTotalPriceHari();
+    }
   }
 
   // Fungsi untuk mereset semua pilihan dan total harga
@@ -129,6 +154,12 @@ class OrderController extends GetxController {
     // Reset pesanan setelah berhasil menyimpan transaksi
     resetOrder();
 
+    // Hitung kembali total harga harian setelah menambahkan transaksi baru
+    calculateTotalPriceHari();
+
+    // Memperbarui antarmuka pengguna setelah menambahkan transaksi baru
+    update();
+
     // Tampilkan snackbar bahwa pesanan berhasil tersimpan
     Get.snackbar(
       'Sukses!',
@@ -136,7 +167,6 @@ class OrderController extends GetxController {
       duration: const Duration(seconds: 2),
       snackPosition: SnackPosition.BOTTOM,
     );
-    update();
   }
 
   Future<List<Map<String, dynamic>>> getOrderHistory() async {
@@ -201,11 +231,45 @@ class OrderController extends GetxController {
     update();
   }
 
-  // void updateUI() {
-  //   update();
-  // }
+// Metode untuk menghitung total harga harian
+  void calculateTotalPriceHari() {
+    // Mendapatkan tanggal hari ini
+    DateTime currentDate = DateTime.now();
+
+    // Mendapatkan tanggal dalam format "yyyy-MM-dd"
+    String formattedDate = DateFormat('yyyy-MM-dd').format(currentDate);
+
+    // Mendapatkan semua transaksi untuk tanggal tersebut dari local storage
+    List<dynamic>? transactions = box.read(formattedDate);
+
+    if (transactions != null) {
+      // Variabel untuk menyimpan total harga harian
+      num totalHarian = 0;
+
+      // Iterasi semua transaksi pada hari tersebut
+      for (dynamic transaction in transactions) {
+        // Mendapatkan total harga dari setiap transaksi dan menambahkannya ke totalHarian
+        totalHarian += transaction['totalPrice'] ?? 0;
+        update();
+      }
+
+      // Simpan total harga harian ke local storage
+      box.write('totalPriceHari_$formattedDate', totalHarian);
+
+      // Update nilai observable
+      totalPriceHari.value =
+          totalHarian.toInt(); // Konversi ke int sebelum disimpan
+    }
+  }
 
   void updateSelectedDateOrders(DateTime selectedDate) {
     selectedDateOrders.value = getEventsForDay(selectedDate);
+  }
+
+  @override
+  void onInit() {
+    calculateTotalPriceHari();
+    print('total price hari $totalPriceHari');
+    super.onInit();
   }
 }
