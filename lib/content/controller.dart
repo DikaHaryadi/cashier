@@ -317,6 +317,14 @@ class OrderController extends GetxController {
     uangKembalian.value = rxIntValue - total;
   }
 
+  // int getTotalMenuPrice() {
+  //   int total = 0;
+  //   for (String menu in selectedMenu) {
+  //     total += menuPrices[menu] ?? 0;
+  //   }
+  //   return total;
+  // }
+
   @override
   void onInit() {
     calculateTotalPriceHari();

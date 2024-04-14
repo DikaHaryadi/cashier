@@ -662,135 +662,123 @@ class HomePage extends StatelessWidget {
                   ),
             const SizedBox(height: 10.0),
             GetBuilder<OrderController>(
-              builder: (controller) => FutureBuilder<List<dynamic>>(
-                future: controller.getOrderHistory(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else {
-                    List<dynamic> orders = snapshot.data ?? [];
-                    if (orders.isEmpty) {
+              builder: (controller) {
+                // Variabel untuk menyimpan total harga masing-masing menu dan minuman
+                Map<String, int> menuTotalPrice = {};
+                Map<String, int> drinkTotalPrice = {};
+
+                return FutureBuilder<List<dynamic>>(
+                  future: controller.getOrderHistory(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
                       return Center(
-                        child: AutoSizeText(
-                          'Belum ada riwayat pemesanan',
-                          minFontSize: 14,
-                          maxFontSize: 15,
-                          style:
-                              GoogleFonts.aBeeZee(fontWeight: FontWeight.w500),
-                        ),
+                        child: Text('Error: ${snapshot.error}'),
                       );
                     } else {
-                      orders = orders.reversed.toList();
-                      return ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemCount: orders.length,
-                        itemBuilder: (context, index) {
-                          Map<String, dynamic> order = orders[index];
-                          String formattedDate =
-                              DateFormat('EEEE, MMM d', 'id_ID')
-                                  .format(DateTime.parse(order['date']));
+                      List<dynamic> orders = snapshot.data ?? [];
+                      if (orders.isEmpty) {
+                        return Center(
+                          child: AutoSizeText(
+                            'Belum ada riwayat pemesanan',
+                            minFontSize: 14,
+                            maxFontSize: 15,
+                            style: GoogleFonts.aBeeZee(
+                                fontWeight: FontWeight.w500),
+                          ),
+                        );
+                      } else {
+                        orders = orders.reversed.toList();
 
-                          // Menghitung jumlah pesanan dan total harga masing-masing menu
-                          Map<String, int> menuCount = {};
-                          Map<String, int> menuTotalPrice = {};
-                          for (String menu in order['selectedMenu']) {
-                            menuCount.update(menu, (value) => value + 1,
-                                ifAbsent: () => 1);
-                            int menuIndex = controller.menuPrices.keys
-                                .toList()
-                                .indexOf(menu);
-                            if (menuIndex != -1) {
-                              menuTotalPrice.update(
-                                menu,
-                                (value) =>
-                                    (value) +
-                                    (controller.menuPrices[menu] ?? 0),
-                                ifAbsent: () =>
-                                    (controller.menuPrices[menu] ?? 0),
-                              );
-                            }
-                          }
+                        for (var order in orders) {
+                          // Menghitung total harga masing-masing menu
+                          order['selectedMenu'].forEach((menu) {
+                            menuTotalPrice[menu] = (menuTotalPrice[menu] ?? 0) +
+                                (controller.menuPrices[menu] ?? 0);
+                          });
 
-                          // Menghitung jumlah pesanan dan total harga masing-masing minuman
-                          Map<String, int> drinkCount = {};
-                          Map<String, int> drinkTotalPrice = {};
-                          for (String drink in order['selectedDrink']) {
-                            drinkCount.update(drink, (value) => value + 1,
-                                ifAbsent: () => 1);
-                            int drinkIndex = controller.drinkPrices.keys
-                                .toList()
-                                .indexOf(drink);
-                            if (drinkIndex != -1) {
-                              drinkTotalPrice.update(
-                                drink,
-                                (value) =>
-                                    (value) +
-                                    (controller.drinkPrices[drink] ?? 0),
-                                ifAbsent: () =>
-                                    (controller.drinkPrices[drink] ?? 0),
-                              );
-                            }
-                          }
-                          return Dismissible(
-                            key: Key(orders[index]['date']), // Gunakan key unik
-                            direction: DismissDirection.endToStart,
-                            onDismissed: (direction) {
-                              // Panggil fungsi removeOrder untuk menghapus entri saat item digeser
-                              controller.removeOrder(index);
-                            },
-                            background: Container(
-                              color: Colors
-                                  .red, // Warna latar belakang saat menggeser untuk menghapus
-                              child: const Align(
-                                alignment: Alignment.centerRight,
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 16.0),
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: Colors.white,
+                          // Menghitung total harga masing-masing minuman
+                          order['selectedDrink'].forEach((drink) {
+                            drinkTotalPrice[drink] =
+                                (drinkTotalPrice[drink] ?? 0) +
+                                    (controller.drinkPrices[drink] ?? 0);
+                          });
+                        }
+
+                        return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: orders.length,
+                          itemBuilder: (context, index) {
+                            Map<String, dynamic> order = orders[index];
+                            String formattedDate =
+                                DateFormat('EEEE, MMM d', 'id_ID')
+                                    .format(DateTime.parse(order['date']));
+
+                            // Menghitung jumlah pesanan dan total harga masing-masing menu
+                            Map<String, int> menuCount = {};
+                            order['selectedMenu'].forEach((menu) {
+                              menuCount[menu] = (menuCount[menu] ?? 0) + 1;
+                            });
+
+                            // Menghitung jumlah pesanan dan total harga masing-masing minuman
+                            Map<String, int> drinkCount = {};
+                            order['selectedDrink'].forEach((drink) {
+                              drinkCount[drink] = (drinkCount[drink] ?? 0) + 1;
+                            });
+
+                            return Dismissible(
+                              key: Key(orders[index]['date']),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) {
+                                controller.removeOrder(index);
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                child: const Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(right: 16.0),
+                                    child: Icon(
+                                      Icons.delete,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            child: ExpandableContainer(
-                              tanggal: formattedDate,
-                              totalPrice:
-                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(order['totalPrice'])}',
-                              totalMenu:
-                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(order['totalMenuPrice'])}',
-                              totalDrink:
-                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(order['totalDrinkPrice'])}',
-                              menu: order['selectedMenu'],
-                              drink: order['selectedDrink'],
-                              menuCount:
-                                  menuCount, // Mengisi properti menuCount dengan nilai yang telah dihitung
-                              drinkCount:
-                                  drinkCount, // Mengisi properti drinkCount dengan nilai yang telah dihitung
-                              menuTotalPrice:
-                                  menuTotalPrice, // Mengisi properti menuTotalPrice dengan nilai yang telah dihitung
-                              drinkTotalPrice:
-                                  drinkTotalPrice, // Mengisi properti drinkTotalPrice dengan nilai yang telah dihitung
-                              payMenu: order['selectedMenu']
-                                  .map((menu) => controller.menuPrices[menu])
-                                  .toList(),
-                              payDrink: order['selectedDrink']
-                                  .map((drink) => controller.drinkPrices[drink])
-                                  .toList(),
-                            ),
-                          );
-                        },
-                      );
+                              child: ExpandableContainer(
+                                tanggal: formattedDate,
+                                totalPrice:
+                                    'Rp. ${NumberFormat("#,##0.###", "id_ID").format(order['totalPrice'])}',
+                                totalMenu:
+                                    'Rp. ${NumberFormat("#,##0.###", "id_ID").format(order['totalMenuPrice'])}',
+                                totalDrink:
+                                    'Rp. ${NumberFormat("#,##0.###", "id_ID").format(order['totalDrinkPrice'])}',
+                                menu: order['selectedMenu'],
+                                drink: order['selectedDrink'],
+                                menuCount: menuCount,
+                                drinkCount: drinkCount,
+                                menuTotalPrice: menuTotalPrice,
+                                drinkTotalPrice: drinkTotalPrice,
+                                payMenu: order['selectedMenu']
+                                    .map((menu) => controller.menuPrices[menu])
+                                    .toList(),
+                                payDrink: order['selectedDrink']
+                                    .map((drink) =>
+                                        controller.drinkPrices[drink])
+                                    .toList(),
+                              ),
+                            );
+                          },
+                        );
+                      }
                     }
-                  }
-                },
-              ),
+                  },
+                );
+              },
             ),
           ],
         ),

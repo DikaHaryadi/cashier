@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:makeci/content/controller.dart';
 
 class ExpandableContainer extends StatefulWidget {
@@ -144,27 +145,21 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                         ),
                       ),
                       const SizedBox(height: 8.0),
-                      AutoSizeText(
-                        widget.menuCount.isEmpty
-                            ? 'Tidak ada makanan yang dipesan'
-                            : 'Kategori Makanan : ${widget.menuCount}',
-                        maxFontSize: 14,
-                        minFontSize: 12,
-                        style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w400,
-                          color: _isExpanded ? Colors.black : Colors.white,
-                        ),
-                      ),
-                      AutoSizeText(
-                        widget.menuTotalPrice.isEmpty
-                            ? ''
-                            : 'Total Harga: ${widget.menuTotalPrice}',
-                        maxFontSize: 14,
-                        minFontSize: 12,
-                        style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w400,
-                          color: _isExpanded ? Colors.black : Colors.white,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.menuCount.keys.map((item) {
+                          int quantity = widget.menuCount[item] ?? 0;
+                          int totalPrice = widget.menuTotalPrice[item] ?? 0;
+                          return AutoSizeText(
+                            '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
+                            maxFontSize: 14,
+                            minFontSize: 13,
+                            style: GoogleFonts.roboto(
+                              fontWeight: FontWeight.w400,
+                              color: _isExpanded ? Colors.black : Colors.white,
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                     const SizedBox(height: 10.0),
@@ -179,27 +174,22 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      AutoSizeText(
-                        widget.drinkCount.isEmpty
-                            ? 'Tidak ada minuman yang dipesan'
-                            : 'Kategori Minuman : ${widget.drinkCount}',
-                        maxFontSize: 14,
-                        minFontSize: 12,
-                        style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w400,
-                          color: _isExpanded ? Colors.black : Colors.white,
-                        ),
-                      ),
-                      AutoSizeText(
-                        widget.drinkTotalPrice.isEmpty
-                            ? ''
-                            : 'Total Harga: ${widget.drinkTotalPrice}',
-                        maxFontSize: 14,
-                        minFontSize: 12,
-                        style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w400,
-                          color: _isExpanded ? Colors.black : Colors.white,
-                        ),
+                      // Di dalam widget build:
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.drinkCount.keys.map((item) {
+                          int quantity = widget.drinkCount[item] ?? 0;
+                          int totalPrice = widget.drinkTotalPrice[item] ?? 0;
+                          return AutoSizeText(
+                            '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
+                            maxFontSize: 14,
+                            minFontSize: 13,
+                            style: GoogleFonts.roboto(
+                              fontWeight: FontWeight.w400,
+                              color: _isExpanded ? Colors.black : Colors.white,
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ],
                   ],
