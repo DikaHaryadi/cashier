@@ -39,7 +39,6 @@ class OrderController extends GetxController {
       duration: const Duration(seconds: 2),
       snackPosition: SnackPosition.BOTTOM,
     );
-    print(price);
     update(); // Memperbarui antarmuka pengguna setelah menambahkan menu baru
   }
 
@@ -303,9 +302,14 @@ class OrderController extends GetxController {
   }
 
   void uangKembali() {
-    int rxIntValue = int.tryParse(hKembalian.text) ?? 0;
+    String rxIntValue = hKembalian.text.trim();
     int total = totalPrice.value;
-    if (rxIntValue < total) {
+
+    // Membersihkan input harga dari karakter non-angka
+    String cleanedPrice = rxIntValue.replaceAll(RegExp(r'[^0-9]'), '');
+    int price = int.tryParse(cleanedPrice) ?? 0;
+
+    if (price < total) {
       Get.snackbar(
         'Peringatan!',
         'Tolong masukkan angka dengan benar',
@@ -314,7 +318,7 @@ class OrderController extends GetxController {
       );
       return;
     }
-    uangKembalian.value = rxIntValue - total;
+    uangKembalian.value = price - total;
   }
 
   // int getTotalMenuPrice() {
@@ -328,7 +332,6 @@ class OrderController extends GetxController {
   @override
   void onInit() {
     calculateTotalPriceHari();
-    print('total price hari $totalPriceHari');
     super.onInit();
   }
 }

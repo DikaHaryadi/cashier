@@ -23,7 +23,6 @@ class _CalendarPemesananState extends State<CalendarPemesanan> {
     // Mengisi selectedDateOrders saat halaman dimuat
     orderController.selectedDateOrders.value =
         orderController.getEventsForDay(orderController.selectedDate.value);
-    print(orderController.selectedDate.value);
 
     // Menerapkan pembaruan ketika selectedDate berubah
     ever(orderController.selectedDate, (_) {
@@ -64,7 +63,7 @@ class _CalendarPemesananState extends State<CalendarPemesanan> {
           Padding(
             padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
             child: AutoSizeText(
-              'Total Harga Hari Ini-> Rp. ${orderController.totalPriceHari.value}',
+              'Total Pendapatan Hari Ini\nRp. ${NumberFormat("#,##0.###", "id_ID").format(orderController.totalPrice.value)}',
               maxFontSize: 18,
               minFontSize: 16,
               style: GoogleFonts.aBeeZee(
