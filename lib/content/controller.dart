@@ -5,23 +5,9 @@ import 'package:intl/intl.dart';
 
 class OrderController extends GetxController {
   // Menggunakan Map untuk menyimpan harga menu dan minuman
-  final Map<String, int> menuPrices = {
-    'mie ayam': 13000,
-    'mie ayam bakso': 15000,
-    'bakso urat': 15000,
-    'bakso telor': 18000,
-    'bakso beranak': 17000,
-    'bakso mercon': 20000,
-  };
+  final Map<String, int> menuPrices = {};
 
-  final Map<String, int> drinkPrices = {
-    'stee': 4000,
-    'air gelas': 1000,
-    'lemineral': 2000,
-    'es teh manis hangat': 5000,
-    'es good day': 5000,
-    'milkshake': 5000,
-  };
+  final Map<String, int> drinkPrices = {};
 
   // Variabel untuk menyimpan pilihan pengguna
   RxList<String> selectedMenu = <String>[].obs;
@@ -71,11 +57,23 @@ class OrderController extends GetxController {
 
   void deleteMenu(String menuName) {
     menuPrices.remove(menuName.toLowerCase());
+    Get.snackbar(
+      'Peringatan!',
+      'Berhasil menghapus menu',
+      duration: const Duration(seconds: 2),
+      snackPosition: SnackPosition.BOTTOM,
+    );
     update(); // Memperbarui antarmuka pengguna setelah menghapus menu
   }
 
   void deleteDrink(String drinkMenu) {
     drinkPrices.remove(drinkMenu.toLowerCase());
+    Get.snackbar(
+      'Peringatan!',
+      'Berhasil menghapus menu',
+      duration: const Duration(seconds: 2),
+      snackPosition: SnackPosition.BOTTOM,
+    );
     update(); // Memperbarui antarmuka pengguna setelah menghapus menu
   }
 

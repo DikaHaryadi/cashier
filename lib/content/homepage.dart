@@ -84,143 +84,167 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10.0),
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: controller.menuPrices.length,
-              itemBuilder: (context, index) {
-                // Buat list kunci unik
-                final List<String> menuKeys =
-                    controller.menuPrices.keys.toList();
+            controller.menuPrices.values.isEmpty
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 20 / 5,
+                        child: Image.asset(
+                          'assets/empty.jpg',
+                        ),
+                      ),
+                      AutoSizeText(
+                        'Tidak ada menu makanan',
+                        maxFontSize: 20,
+                        minFontSize: 18,
+                        style: GoogleFonts.aBeeZee(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      )
+                    ],
+                  )
+                : ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: controller.menuPrices.length,
+                    itemBuilder: (context, index) {
+                      // Buat list kunci unik
+                      final List<String> menuKeys =
+                          controller.menuPrices.keys.toList();
 
-                final String menuName =
-                    controller.menuPrices.keys.toList()[index];
-                final int menuPrice =
-                    controller.menuPrices.values.toList()[index];
-                return Dismissible(
-                  key: Key(menuKeys[index]), // Gunakan kunci unik dari list
+                      final String menuName =
+                          controller.menuPrices.keys.toList()[index];
+                      final int menuPrice =
+                          controller.menuPrices.values.toList()[index];
+                      return Dismissible(
+                        key: Key(
+                            menuKeys[index]), // Gunakan kunci unik dari list
 
-                  onDismissed: (direction) {
-                    // Hapus item dari list data dan list kunci
-                    String removedMenuName = menuKeys[index];
-                    menuKeys.removeAt(index);
-                    controller.deleteMenu(removedMenuName);
-                  },
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15.0, vertical: 8.0),
-                      margin: const EdgeInsets.only(bottom: 10.0),
-                      decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey,
-                                offset: Offset(-2, 2),
-                                blurRadius: 1,
-                                blurStyle: BlurStyle.normal)
-                          ]),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        onDismissed: (direction) {
+                          // Hapus item dari list data dan list kunci
+                          String removedMenuName = menuKeys[index];
+                          menuKeys.removeAt(index);
+                          controller.deleteMenu(removedMenuName);
+                        },
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          child: const Icon(Icons.delete, color: Colors.white),
+                        ),
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15.0, vertical: 8.0),
+                            margin: const EdgeInsets.only(bottom: 10.0),
+                            decoration: const BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15.0)),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey,
+                                      offset: Offset(-2, 2),
+                                      blurRadius: 1,
+                                      blurStyle: BlurStyle.normal)
+                                ]),
+                            child: Row(
                               children: [
-                                AutoSizeText(
-                                  menuName.toUpperCase(),
-                                  maxFontSize: 18,
-                                  minFontSize: 16,
-                                  style: GoogleFonts.roboto(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
+                                        menuName.toUpperCase(),
+                                        maxFontSize: 18,
+                                        minFontSize: 16,
+                                        style: GoogleFonts.roboto(
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      AutoSizeText(
+                                        'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
+                                        maxFontSize: 14,
+                                        minFontSize: 12,
+                                        style: GoogleFonts.montserrat(
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                AutoSizeText(
-                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
-                                  maxFontSize: 14,
-                                  minFontSize: 12,
-                                  style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black,
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: () {
+                                    controller.removeMenu(menuName);
+                                  },
+                                ),
+                                const SizedBox(width: 10.0),
+                                Obx(
+                                  () => AutoSizeText(
+                                    '${controller.selectedMenu.where((item) => item == menuName).length}',
+                                    maxFontSize: 14,
+                                    minFontSize: 12,
+                                    style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black,
+                                    ),
                                   ),
+                                ),
+                                const SizedBox(width: 10.0),
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    controller.addMenu(menuName);
+                                  },
                                 ),
                               ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: () {
-                              controller.removeMenu(menuName);
-                            },
-                          ),
-                          const SizedBox(width: 10.0),
-                          Obx(
-                            () => AutoSizeText(
-                              '${controller.selectedMenu.where((item) => item == menuName).length}',
+                            )),
+                      );
+                    },
+                  ),
+            const SizedBox(height: 10.0),
+            controller.menuPrices.values.isEmpty
+                ? const SizedBox.shrink()
+                : Obx(
+                    () => Container(
+                        padding: const EdgeInsets.symmetric(vertical: 15.0),
+                        color: controller.totalMenuPrice.value == 0
+                            ? Colors.red
+                            : Colors.green.shade400,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            AutoSizeText(
+                              'Total Makanan',
                               maxFontSize: 14,
                               minFontSize: 12,
                               style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black,
+                                fontWeight: controller.totalMenuPrice.value == 0
+                                    ? FontWeight.w400
+                                    : FontWeight.bold,
+                                color: controller.totalMenuPrice.value == 0
+                                    ? Colors.black
+                                    : Colors.white,
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 10.0),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () {
-                              controller.addMenu(menuName);
-                            },
-                          ),
-                        ],
-                      )),
-                );
-              },
-            ),
-            const SizedBox(height: 10.0),
-            Obx(
-              () => Container(
-                  padding: const EdgeInsets.symmetric(vertical: 15.0),
-                  color: controller.totalMenuPrice.value == 0
-                      ? Colors.red
-                      : Colors.green.shade400,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      AutoSizeText(
-                        'Total Makanan',
-                        maxFontSize: 14,
-                        minFontSize: 12,
-                        style: GoogleFonts.montserrat(
-                          fontWeight: controller.totalMenuPrice.value == 0
-                              ? FontWeight.w400
-                              : FontWeight.bold,
-                          color: controller.totalMenuPrice.value == 0
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
-                      AutoSizeText(
-                        'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalMenuPrice.value)}',
-                        maxFontSize: 14,
-                        minFontSize: 12,
-                        style: GoogleFonts.montserrat(
-                          fontWeight: controller.totalMenuPrice.value == 0
-                              ? FontWeight.w400
-                              : FontWeight.bold,
-                          color: controller.totalMenuPrice.value == 0
-                              ? Colors.black
-                              : Colors.white,
-                        ),
-                      ),
-                    ],
-                  )),
-            ),
+                            AutoSizeText(
+                              'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalMenuPrice.value)}',
+                              maxFontSize: 14,
+                              minFontSize: 12,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: controller.totalMenuPrice.value == 0
+                                    ? FontWeight.w400
+                                    : FontWeight.bold,
+                                color: controller.totalMenuPrice.value == 0
+                                    ? Colors.black
+                                    : Colors.white,
+                              ),
+                            ),
+                          ],
+                        )),
+                  ),
             const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -234,282 +258,311 @@ class HomePage extends StatelessWidget {
                 ),
                 InkWell(
                     onTap: () => Get.toNamed('/add-drink'),
-                    child: Icon(
+                    child: const Icon(
                       Icons.add_box,
                       color: Colors.blue,
                     ))
               ],
             ),
             const SizedBox(height: 10.0),
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: controller.drinkPrices.length,
-              itemBuilder: (context, index) {
-                // Buat list kunci unik
-                final List<String> drinkKeys =
-                    controller.drinkPrices.keys.toList();
-                final String drinkName =
-                    controller.drinkPrices.keys.toList()[index];
-                final int drinkPrice =
-                    controller.drinkPrices.values.toList()[index];
-                return Dismissible(
-                  key: Key(drinkKeys[index]), // Gunakan kunci unik dari list
-
-                  onDismissed: (direction) {
-                    // Hapus item dari list data dan list kunci
-                    String removedDrink = drinkKeys[index];
-                    drinkKeys.removeAt(index);
-                    controller.deleteDrink(removedDrink);
-                  },
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15.0, vertical: 8.0),
-                      margin: const EdgeInsets.only(bottom: 10.0),
-                      decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey,
-                                offset: Offset(-2, 2),
-                                blurRadius: 1,
-                                blurStyle: BlurStyle.normal)
-                          ]),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AutoSizeText(
-                                  drinkName.toUpperCase(),
-                                  maxFontSize: 18,
-                                  minFontSize: 16,
-                                  style: GoogleFonts.roboto(
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black),
-                                ),
-                                AutoSizeText(
-                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
-                                  maxFontSize: 14,
-                                  minFontSize: 12,
-                                  style: GoogleFonts.montserrat(
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: () {
-                              controller.removeDrink(drinkName);
-                            },
-                          ),
-                          const SizedBox(width: 10.0),
-                          Obx(
-                            () => AutoSizeText(
-                              '${controller.selectedDrink.where((item) => item == drinkName).length}',
-                              maxFontSize: 14,
-                              minFontSize: 12,
-                              style: GoogleFonts.montserrat(
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10.0),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: () {
-                              controller.addDrink(drinkName);
-                            },
-                          ),
-                        ],
-                      )),
-                );
-              },
-            ),
-            const SizedBox(height: 10.0),
-            Obx(
-              () => Container(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
-                color: controller.totalDrinkPrice.value == 0
-                    ? Colors.red
-                    : Colors.green.shade400,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    AutoSizeText(
-                      'Total Minuman',
-                      maxFontSize: 14,
-                      minFontSize: 12,
-                      style: GoogleFonts.montserrat(
-                        fontWeight: controller.totalDrinkPrice.value == 0
-                            ? FontWeight.w400
-                            : FontWeight.bold,
-                        color: controller.totalDrinkPrice.value == 0
-                            ? Colors.black
-                            : Colors.white,
-                      ),
-                    ),
-                    AutoSizeText(
-                      'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalDrinkPrice.value)}',
-                      maxFontSize: 14,
-                      minFontSize: 12,
-                      style: GoogleFonts.montserrat(
-                        fontWeight: controller.totalDrinkPrice.value == 0
-                            ? FontWeight.w400
-                            : FontWeight.bold,
-                        color: controller.totalDrinkPrice.value == 0
-                            ? Colors.black
-                            : Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            Container(
-              width: MediaQuery.of(context).size.width,
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
-              decoration: BoxDecoration(
-                border: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                    strokeAlign: BorderSide.strokeAlignOutside),
-              ),
-              child: Column(
-                children: [
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText(
-                        'Total Pemesanan',
-                        maxFontSize: 24,
-                        minFontSize: 20,
-                        style: GoogleFonts.aBeeZee(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      )),
-                  const SizedBox(height: 5.0),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+            controller.drinkPrices.values.isEmpty
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Obx(
-                        () => Visibility(
-                          visible: controller.totalPrice.value > 0,
-                          child: GestureDetector(
-                            onTap: () => controller.resetOrder(),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 15.0,
-                                horizontal: 10.0,
-                              ),
-                              color: Colors.red,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              alignment: Alignment.center,
-                              child: AutoSizeText(
-                                'Hapus Pesanan',
-                                maxFontSize: 14,
-                                minFontSize: 12,
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
+                      AspectRatio(
+                        aspectRatio: 20 / 5,
+                        child: Image.asset(
+                          'assets/empty.jpg',
                         ),
                       ),
-                      Obx(
-                        () => Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 15.0, horizontal: 8.0),
-                            decoration: BoxDecoration(
-                                color: controller.totalPrice.value == 0
-                                    ? Colors.red
-                                    : Colors.white,
-                                boxShadow: const [
-                                  BoxShadow(
-                                      blurRadius: 1,
-                                      color: Colors.black,
-                                      blurStyle: BlurStyle.inner,
-                                      offset: Offset(-2, 2))
-                                ]),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                AutoSizeText(
-                                  'Total Harga',
-                                  maxFontSize: 14,
-                                  minFontSize: 12,
-                                  style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                AutoSizeText(
-                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalPrice.value)}',
-                                  maxFontSize: 14,
-                                  minFontSize: 12,
-                                  style: GoogleFonts.aBeeZee(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black38,
-                                      shadows: [
-                                        BoxShadow(
-                                            offset: const Offset(2, 0),
-                                            color:
-                                                controller.totalPrice.value == 0
-                                                    ? Colors.white
-                                                    : Colors.green,
-                                            blurRadius: .5,
-                                            blurStyle: BlurStyle.outer)
-                                      ]),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      AutoSizeText(
+                        'Tidak ada menu minuman',
+                        maxFontSize: 20,
+                        minFontSize: 18,
+                        style: GoogleFonts.aBeeZee(
+                            fontWeight: FontWeight.bold, color: Colors.black),
                       )
                     ],
+                  )
+                : ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: controller.drinkPrices.length,
+                    itemBuilder: (context, index) {
+                      // Buat list kunci unik
+                      final List<String> drinkKeys =
+                          controller.drinkPrices.keys.toList();
+                      final String drinkName =
+                          controller.drinkPrices.keys.toList()[index];
+                      final int drinkPrice =
+                          controller.drinkPrices.values.toList()[index];
+                      return Dismissible(
+                        key: Key(
+                            drinkKeys[index]), // Gunakan kunci unik dari list
+
+                        onDismissed: (direction) {
+                          // Hapus item dari list data dan list kunci
+                          String removedDrink = drinkKeys[index];
+                          drinkKeys.removeAt(index);
+                          controller.deleteDrink(removedDrink);
+                        },
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          child: const Icon(Icons.delete, color: Colors.white),
+                        ),
+                        child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15.0, vertical: 8.0),
+                            margin: const EdgeInsets.only(bottom: 10.0),
+                            decoration: const BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15.0)),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey,
+                                      offset: Offset(-2, 2),
+                                      blurRadius: 1,
+                                      blurStyle: BlurStyle.normal)
+                                ]),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      AutoSizeText(
+                                        drinkName.toUpperCase(),
+                                        maxFontSize: 18,
+                                        minFontSize: 16,
+                                        style: GoogleFonts.roboto(
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.black),
+                                      ),
+                                      AutoSizeText(
+                                        'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
+                                        maxFontSize: 14,
+                                        minFontSize: 12,
+                                        style: GoogleFonts.montserrat(
+                                            fontWeight: FontWeight.w400,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: () {
+                                    controller.removeDrink(drinkName);
+                                  },
+                                ),
+                                const SizedBox(width: 10.0),
+                                Obx(
+                                  () => AutoSizeText(
+                                    '${controller.selectedDrink.where((item) => item == drinkName).length}',
+                                    maxFontSize: 14,
+                                    minFontSize: 12,
+                                    style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10.0),
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    controller.addDrink(drinkName);
+                                  },
+                                ),
+                              ],
+                            )),
+                      );
+                    },
                   ),
-                  const SizedBox(height: 8.0),
-                  Obx(
-                    () => Visibility(
-                      visible: controller.totalPrice.value > 0,
-                      child: ElevatedButton(
-                        onPressed: () => controller.saveTransaction(),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green.shade400,
-                            elevation: 4,
-                            shadowColor: Colors.grey.shade400),
-                        child: Center(
-                          child: AutoSizeText(
-                            'CheckOut',
+            const SizedBox(height: 10.0),
+            controller.drinkPrices.values.isEmpty
+                ? const SizedBox.shrink()
+                : Obx(
+                    () => Container(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      color: controller.totalDrinkPrice.value == 0
+                          ? Colors.red
+                          : Colors.green.shade400,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          AutoSizeText(
+                            'Total Minuman',
                             maxFontSize: 14,
                             minFontSize: 12,
                             style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              fontWeight: controller.totalDrinkPrice.value == 0
+                                  ? FontWeight.w400
+                                  : FontWeight.bold,
+                              color: controller.totalDrinkPrice.value == 0
+                                  ? Colors.black
+                                  : Colors.white,
                             ),
                           ),
-                        ),
+                          AutoSizeText(
+                            'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalDrinkPrice.value)}',
+                            maxFontSize: 14,
+                            minFontSize: 12,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: controller.totalDrinkPrice.value == 0
+                                  ? FontWeight.w400
+                                  : FontWeight.bold,
+                              color: controller.totalDrinkPrice.value == 0
+                                  ? Colors.black
+                                  : Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  )
-                ],
-              ),
-            ),
+                  ),
+            const SizedBox(height: 10.0),
+            controller.drinkPrices.values.isEmpty ||
+                    controller.menuPrices.values.isEmpty
+                ? const SizedBox.shrink()
+                : Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 10.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                          color: Colors.black,
+                          width: 1,
+                          strokeAlign: BorderSide.strokeAlignOutside),
+                    ),
+                    child: Column(
+                      children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: AutoSizeText(
+                              'Total Pemesanan',
+                              maxFontSize: 24,
+                              minFontSize: 20,
+                              style: GoogleFonts.aBeeZee(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            )),
+                        const SizedBox(height: 5.0),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Obx(
+                              () => Visibility(
+                                visible: controller.totalPrice.value > 0,
+                                child: GestureDetector(
+                                  onTap: () => controller.resetOrder(),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 15.0,
+                                      horizontal: 10.0,
+                                    ),
+                                    color: Colors.red,
+                                    margin: const EdgeInsets.only(right: 10.0),
+                                    alignment: Alignment.center,
+                                    child: AutoSizeText(
+                                      'Hapus Pesanan',
+                                      maxFontSize: 14,
+                                      minFontSize: 12,
+                                      style: GoogleFonts.montserrat(
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Obx(
+                              () => Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 15.0, horizontal: 8.0),
+                                  decoration: BoxDecoration(
+                                      color: controller.totalPrice.value == 0
+                                          ? Colors.red
+                                          : Colors.white,
+                                      boxShadow: const [
+                                        BoxShadow(
+                                            blurRadius: 1,
+                                            color: Colors.black,
+                                            blurStyle: BlurStyle.inner,
+                                            offset: Offset(-2, 2))
+                                      ]),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      AutoSizeText(
+                                        'Total Harga',
+                                        maxFontSize: 14,
+                                        minFontSize: 12,
+                                        style: GoogleFonts.montserrat(
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      AutoSizeText(
+                                        'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalPrice.value)}',
+                                        maxFontSize: 14,
+                                        minFontSize: 12,
+                                        style: GoogleFonts.aBeeZee(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black38,
+                                            shadows: [
+                                              BoxShadow(
+                                                  offset: const Offset(2, 0),
+                                                  color: controller.totalPrice
+                                                              .value ==
+                                                          0
+                                                      ? Colors.white
+                                                      : Colors.green,
+                                                  blurRadius: .5,
+                                                  blurStyle: BlurStyle.outer)
+                                            ]),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 8.0),
+                        Obx(
+                          () => Visibility(
+                            visible: controller.totalPrice.value > 0,
+                            child: ElevatedButton(
+                              onPressed: () => controller.saveTransaction(),
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green.shade400,
+                                  elevation: 4,
+                                  shadowColor: Colors.grey.shade400),
+                              child: Center(
+                                child: AutoSizeText(
+                                  'CheckOut',
+                                  maxFontSize: 14,
+                                  minFontSize: 12,
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
             const SizedBox(height: 20.0),
             Obx(
               () => Visibility(
@@ -590,21 +643,23 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-            TextButton(
-              onPressed: () {
-                Get.toNamed('/histori-perweek');
-              },
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                child: AutoSizeText('Cek Histori Pemesanan Perminggu',
-                    maxFontSize: 16,
-                    minFontSize: 14,
-                    style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w400)),
-              ),
-            ),
+            controller.orderHistory.isEmpty
+                ? const SizedBox.shrink()
+                : TextButton(
+                    onPressed: () {
+                      Get.toNamed('/histori-perweek');
+                    },
+                    child: const Align(
+                      alignment: Alignment.centerLeft,
+                      child: AutoSizeText('Cek Histori Pemesanan Perminggu',
+                          maxFontSize: 16,
+                          minFontSize: 14,
+                          style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w400)),
+                    ),
+                  ),
             const SizedBox(height: 10.0),
             GetBuilder<OrderController>(
               builder: (controller) => FutureBuilder<List<dynamic>>(
@@ -621,8 +676,14 @@ class HomePage extends StatelessWidget {
                   } else {
                     List<dynamic> orders = snapshot.data ?? [];
                     if (orders.isEmpty) {
-                      return const Center(
-                        child: Text('Belum ada riwayat pemesanan'),
+                      return Center(
+                        child: AutoSizeText(
+                          'Belum ada riwayat pemesanan',
+                          minFontSize: 14,
+                          maxFontSize: 15,
+                          style:
+                              GoogleFonts.aBeeZee(fontWeight: FontWeight.w500),
+                        ),
                       );
                     } else {
                       orders = orders.reversed.toList();
