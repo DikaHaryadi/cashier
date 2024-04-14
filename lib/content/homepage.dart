@@ -64,12 +64,24 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 5.0),
-            AutoSizeText(
-              'Makanan',
-              maxFontSize: 16,
-              minFontSize: 14,
-              style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w400, color: Colors.black),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AutoSizeText(
+                  'Makanan',
+                  maxFontSize: 16,
+                  minFontSize: 14,
+                  style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w400, color: Colors.black),
+                ),
+                InkWell(
+                  onTap: () => Get.toNamed('/add-menu'),
+                  child: const Icon(
+                    Icons.add_box_rounded,
+                    color: Colors.blue,
+                  ),
+                )
+              ],
             ),
             const SizedBox(height: 10.0),
             ListView.builder(
@@ -77,78 +89,97 @@ class HomePage extends StatelessWidget {
               shrinkWrap: true,
               itemCount: controller.menuPrices.length,
               itemBuilder: (context, index) {
+                // Buat list kunci unik
+                final List<String> menuKeys =
+                    controller.menuPrices.keys.toList();
+
                 final String menuName =
                     controller.menuPrices.keys.toList()[index];
                 final int menuPrice =
                     controller.menuPrices.values.toList()[index];
-                return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0, vertical: 8.0),
-                    margin: const EdgeInsets.only(bottom: 10.0),
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(-2, 2),
-                              blurRadius: 1,
-                              blurStyle: BlurStyle.normal)
-                        ]),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                menuName.toUpperCase(),
-                                maxFontSize: 18,
-                                minFontSize: 16,
-                                style: GoogleFonts.roboto(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black,
+                return Dismissible(
+                  key: Key(menuKeys[index]), // Gunakan kunci unik dari list
+
+                  onDismissed: (direction) {
+                    // Hapus item dari list data dan list kunci
+                    String removedMenuName = menuKeys[index];
+                    menuKeys.removeAt(index);
+                    controller.deleteMenu(removedMenuName);
+                  },
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15.0, vertical: 8.0),
+                      margin: const EdgeInsets.only(bottom: 10.0),
+                      decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey,
+                                offset: Offset(-2, 2),
+                                blurRadius: 1,
+                                blurStyle: BlurStyle.normal)
+                          ]),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoSizeText(
+                                  menuName.toUpperCase(),
+                                  maxFontSize: 18,
+                                  minFontSize: 16,
+                                  style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                              AutoSizeText(
-                                'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
-                                maxFontSize: 14,
-                                minFontSize: 12,
-                                style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black,
+                                AutoSizeText(
+                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
+                                  maxFontSize: 14,
+                                  minFontSize: 12,
+                                  style: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.remove),
-                          onPressed: () {
-                            controller.removeMenu(menuName);
-                          },
-                        ),
-                        const SizedBox(width: 10.0),
-                        Obx(
-                          () => AutoSizeText(
-                            '${controller.selectedMenu.where((item) => item == menuName).length}',
-                            maxFontSize: 14,
-                            minFontSize: 12,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10.0),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () {
-                            controller.addMenu(menuName);
-                          },
-                        ),
-                      ],
-                    ));
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () {
+                              controller.removeMenu(menuName);
+                            },
+                          ),
+                          const SizedBox(width: 10.0),
+                          Obx(
+                            () => AutoSizeText(
+                              '${controller.selectedMenu.where((item) => item == menuName).length}',
+                              maxFontSize: 14,
+                              minFontSize: 12,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              controller.addMenu(menuName);
+                            },
+                          ),
+                        ],
+                      )),
+                );
               },
             ),
             const SizedBox(height: 10.0),
@@ -191,12 +222,23 @@ class HomePage extends StatelessWidget {
                   )),
             ),
             const SizedBox(height: 20.0),
-            AutoSizeText(
-              'Minuman',
-              maxFontSize: 16,
-              minFontSize: 14,
-              style: GoogleFonts.montserrat(
-                  fontWeight: FontWeight.w400, color: Colors.black),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AutoSizeText(
+                  'Minuman',
+                  maxFontSize: 16,
+                  minFontSize: 14,
+                  style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w400, color: Colors.black),
+                ),
+                InkWell(
+                    onTap: () => Get.toNamed('/add-drink'),
+                    child: Icon(
+                      Icons.add_box,
+                      color: Colors.blue,
+                    ))
+              ],
             ),
             const SizedBox(height: 10.0),
             ListView.builder(
@@ -204,76 +246,94 @@ class HomePage extends StatelessWidget {
               shrinkWrap: true,
               itemCount: controller.drinkPrices.length,
               itemBuilder: (context, index) {
+                // Buat list kunci unik
+                final List<String> drinkKeys =
+                    controller.drinkPrices.keys.toList();
                 final String drinkName =
                     controller.drinkPrices.keys.toList()[index];
                 final int drinkPrice =
                     controller.drinkPrices.values.toList()[index];
-                return Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15.0, vertical: 8.0),
-                    margin: const EdgeInsets.only(bottom: 10.0),
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(-2, 2),
-                              blurRadius: 1,
-                              blurStyle: BlurStyle.normal)
-                        ]),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AutoSizeText(
-                                drinkName.toUpperCase(),
-                                maxFontSize: 18,
-                                minFontSize: 16,
-                                style: GoogleFonts.roboto(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black),
-                              ),
-                              AutoSizeText(
-                                'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
-                                maxFontSize: 14,
-                                minFontSize: 12,
-                                style: GoogleFonts.montserrat(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.remove),
-                          onPressed: () {
-                            controller.removeDrink(drinkName);
-                          },
-                        ),
-                        const SizedBox(width: 10.0),
-                        Obx(
-                          () => AutoSizeText(
-                            '${controller.selectedDrink.where((item) => item == drinkName).length}',
-                            maxFontSize: 14,
-                            minFontSize: 12,
-                            style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
+                return Dismissible(
+                  key: Key(drinkKeys[index]), // Gunakan kunci unik dari list
+
+                  onDismissed: (direction) {
+                    // Hapus item dari list data dan list kunci
+                    String removedDrink = drinkKeys[index];
+                    drinkKeys.removeAt(index);
+                    controller.deleteDrink(removedDrink);
+                  },
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15.0, vertical: 8.0),
+                      margin: const EdgeInsets.only(bottom: 10.0),
+                      decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey,
+                                offset: Offset(-2, 2),
+                                blurRadius: 1,
+                                blurStyle: BlurStyle.normal)
+                          ]),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AutoSizeText(
+                                  drinkName.toUpperCase(),
+                                  maxFontSize: 18,
+                                  minFontSize: 16,
+                                  style: GoogleFonts.roboto(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black),
+                                ),
+                                AutoSizeText(
+                                  'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
+                                  maxFontSize: 14,
+                                  minFontSize: 12,
+                                  style: GoogleFonts.montserrat(
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.black),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10.0),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () {
-                            controller.addDrink(drinkName);
-                          },
-                        ),
-                      ],
-                    ));
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () {
+                              controller.removeDrink(drinkName);
+                            },
+                          ),
+                          const SizedBox(width: 10.0),
+                          Obx(
+                            () => AutoSizeText(
+                              '${controller.selectedDrink.where((item) => item == drinkName).length}',
+                              maxFontSize: 14,
+                              minFontSize: 12,
+                              style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10.0),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () {
+                              controller.addDrink(drinkName);
+                            },
+                          ),
+                        ],
+                      )),
+                );
               },
             ),
             const SizedBox(height: 10.0),
@@ -342,6 +402,7 @@ class HomePage extends StatelessWidget {
                       )),
                   const SizedBox(height: 5.0),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Obx(
                         () => Visibility(

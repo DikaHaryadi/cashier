@@ -44,6 +44,41 @@ class OrderController extends GetxController {
   final box = GetStorage();
   final TextEditingController hKembalian = TextEditingController();
 
+  // Fungsi untuk menambahkan menu baru
+  void addMenuPrice(String menuName, int price) {
+    menuPrices[menuName.toLowerCase()] = price;
+    Get.snackbar(
+      'Berhasil',
+      'Menambahkan Menu Baru Berhasil!',
+      duration: const Duration(seconds: 2),
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    print(price);
+    update(); // Memperbarui antarmuka pengguna setelah menambahkan menu baru
+  }
+
+  // Fungsi untuk menambahkan minuman baru
+  void addDrinkPrice(String drinkName, int price) {
+    drinkPrices[drinkName.toLowerCase()] = price;
+    Get.snackbar(
+      'Berhasil',
+      'Menambahkan Minuman Baru Berhasil!',
+      duration: const Duration(seconds: 2),
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    update(); // Memperbarui antarmuka pengguna setelah menambahkan minuman baru
+  }
+
+  void deleteMenu(String menuName) {
+    menuPrices.remove(menuName.toLowerCase());
+    update(); // Memperbarui antarmuka pengguna setelah menghapus menu
+  }
+
+  void deleteDrink(String drinkMenu) {
+    drinkPrices.remove(drinkMenu.toLowerCase());
+    update(); // Memperbarui antarmuka pengguna setelah menghapus menu
+  }
+
   void toggleDrink(String item) {
     if (selectedDrink.contains(item)) {
       selectedDrink.remove(item);

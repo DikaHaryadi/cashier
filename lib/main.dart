@@ -5,6 +5,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:makeci/content/homepage.dart';
 import 'package:makeci/content/order_histori_week.dart';
+import 'package:makeci/util/add_drink.dart';
+import 'package:makeci/util/add_menu.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,14 @@ class MyApp extends StatelessWidget {
         GetPage(
           name: '/histori-perweek',
           page: () => const CalendarPemesanan(),
+        ),
+        GetPage(
+          name: '/add-menu',
+          page: () => AddMenuPage(),
+        ),
+        GetPage(
+          name: '/add-drink',
+          page: () => AddDrinkPage(),
         ),
       ],
     );
