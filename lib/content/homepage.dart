@@ -1,9 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:makeci/content/controller.dart';
+import 'package:makeci/content/currency_formatter.dart';
 import 'package:makeci/util/expandable_container.dart';
 
 class HomePage extends StatelessWidget {
@@ -376,18 +378,18 @@ class HomePage extends StatelessWidget {
                                 color: controller.totalPrice.value == 0
                                     ? Colors.red
                                     : Colors.white,
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                       blurRadius: 1,
                                       color: Colors.black,
                                       blurStyle: BlurStyle.inner,
                                       offset: Offset(-2, 2))
                                 ]),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 AutoSizeText(
-                                  'Total Harga :',
+                                  'Total Harga',
                                   maxFontSize: 14,
                                   minFontSize: 12,
                                   style: GoogleFonts.montserrat(
@@ -400,9 +402,18 @@ class HomePage extends StatelessWidget {
                                   maxFontSize: 14,
                                   minFontSize: 12,
                                   style: GoogleFonts.aBeeZee(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black,
-                                  ),
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black38,
+                                      shadows: [
+                                        BoxShadow(
+                                            offset: const Offset(2, 0),
+                                            color:
+                                                controller.totalPrice.value == 0
+                                                    ? Colors.white
+                                                    : Colors.green,
+                                            blurRadius: .5,
+                                            blurStyle: BlurStyle.outer)
+                                      ]),
                                 ),
                               ],
                             ),
@@ -437,6 +448,64 @@ class HomePage extends StatelessWidget {
                   )
                 ],
               ),
+            ),
+            const SizedBox(height: 20.0),
+            Obx(
+              () => Visibility(
+                  visible: controller.totalPrice.value > 0,
+                  child: Container(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    decoration: BoxDecoration(border: Border.all()),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.only(left: 15.0),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 15.0),
+                          decoration: const BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                    offset: Offset(2, 2), color: Colors.black)
+                              ]),
+                          child: TextFormField(
+                            controller: controller.hKembalian,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              CustomCurrencyInputFormatter(),
+                            ],
+                            decoration: const InputDecoration(
+                              labelText: 'Masukan Uang Pelanggan',
+                            ),
+                          ),
+                        ),
+                        ElevatedButton(
+                            onPressed: () => controller.uangKembali(),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green.shade400),
+                            child: AutoSizeText(
+                              'Hitung Kembalian',
+                              minFontSize: 12,
+                              maxFontSize: 14,
+                              style: GoogleFonts.montserrat(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            )),
+                        const SizedBox(height: 8.0),
+                        AutoSizeText(
+                          'Uang Kembalian : Rp.${NumberFormat("#,##0.###", "id_ID").format(controller.uangKembalian.value)}',
+                          maxFontSize: 14,
+                          minFontSize: 12,
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
             ),
             const SizedBox(height: 20.0),
             Row(

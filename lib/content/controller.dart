@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
@@ -38,8 +39,10 @@ class OrderController extends GetxController {
 
   // Variabel untuk menyimpan total harga keseluruhan
   RxInt totalPrice = 0.obs;
+  RxInt uangKembalian = 0.obs;
 
   final box = GetStorage();
+  final TextEditingController hKembalian = TextEditingController();
 
   void toggleDrink(String item) {
     if (selectedDrink.contains(item)) {
@@ -264,6 +267,21 @@ class OrderController extends GetxController {
 
   void updateSelectedDateOrders(DateTime selectedDate) {
     selectedDateOrders.value = getEventsForDay(selectedDate);
+  }
+
+  void uangKembali() {
+    int rxIntValue = int.tryParse(hKembalian.text) ?? 0;
+    int total = totalPrice.value;
+    if (rxIntValue < total) {
+      Get.snackbar(
+        'Peringatan!',
+        'Tolong masukkan angka dengan benar',
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+    uangKembalian.value = rxIntValue - total;
   }
 
   @override

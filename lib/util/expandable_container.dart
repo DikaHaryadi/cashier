@@ -13,10 +13,10 @@ class ExpandableContainer extends StatefulWidget {
   final List<dynamic> payMenu;
   final List<dynamic> drink;
   final List<dynamic> payDrink;
-  final Map<String, int> menuCount; // Tambahkan properti baru
-  final Map<String, int> drinkCount; // Tambahkan properti baru
-  final Map<String, int> menuTotalPrice; // Tambahkan properti baru
-  final Map<String, int> drinkTotalPrice; // Tambahkan properti baru
+  final Map<String, int> menuCount;
+  final Map<String, int> drinkCount;
+  final Map<String, int> menuTotalPrice;
+  final Map<String, int> drinkTotalPrice;
 
   const ExpandableContainer({
     Key? key,
@@ -28,10 +28,10 @@ class ExpandableContainer extends StatefulWidget {
     required this.drink,
     required this.payMenu,
     required this.payDrink,
-    required this.menuCount, // Tambahkan properti baru
-    required this.drinkCount, // Tambahkan properti baru
-    required this.menuTotalPrice, // Tambahkan properti baru
-    required this.drinkTotalPrice, // Tambahkan properti baru
+    required this.menuCount,
+    required this.drinkCount,
+    required this.menuTotalPrice,
+    required this.drinkTotalPrice,
   }) : super(key: key);
 
   @override
@@ -119,86 +119,90 @@ class _ExpandableContainerState extends State<ExpandableContainer>
               },
               body: FadeTransition(
                 opacity: animation,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 15.0, vertical: 10.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10.0),
+                    AutoSizeText(
+                      'Keterangan Produk',
+                      maxFontSize: 18,
+                      minFontSize: 16,
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.bold,
+                        color: _isExpanded ? Colors.black : Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 5.0),
+                    if (widget.totalMenu.isNotEmpty) ...[
                       AutoSizeText(
-                        'Keterangan Produk',
+                        'Makanan:',
                         maxFontSize: 18,
                         minFontSize: 16,
                         style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w400,
                           color: _isExpanded ? Colors.black : Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 5.0),
-                      if (widget.totalMenu.isNotEmpty) ...[
-                        AutoSizeText(
-                          'Makanan:',
-                          maxFontSize: 18,
-                          minFontSize: 16,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w400,
-                            color: _isExpanded ? Colors.black : Colors.white,
-                          ),
+                      const SizedBox(height: 8.0),
+                      AutoSizeText(
+                        widget.menuCount.isEmpty
+                            ? 'Tidak ada makanan yang dipesan'
+                            : 'Kategori Makanan : ${widget.menuCount}',
+                        maxFontSize: 14,
+                        minFontSize: 12,
+                        style: GoogleFonts.roboto(
+                          fontWeight: FontWeight.w400,
+                          color: _isExpanded ? Colors.black : Colors.white,
                         ),
-                        const SizedBox(height: 8.0),
-                        AutoSizeText(
-                          'Kategori Makanan : ${widget.menuCount}', // Menggunakan properti menuCount
-                          maxFontSize: 14,
-                          minFontSize: 12,
-                          style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w400,
-                            color: _isExpanded ? Colors.black : Colors.white,
-                          ),
+                      ),
+                      AutoSizeText(
+                        widget.menuTotalPrice.isEmpty
+                            ? ''
+                            : 'Total Harga: ${widget.menuTotalPrice}',
+                        maxFontSize: 14,
+                        minFontSize: 12,
+                        style: GoogleFonts.roboto(
+                          fontWeight: FontWeight.w400,
+                          color: _isExpanded ? Colors.black : Colors.white,
                         ),
-                        AutoSizeText(
-                          'Total Harga: ${widget.menuTotalPrice}', // Menggunakan properti menuTotalPrice
-                          maxFontSize: 14,
-                          minFontSize: 12,
-                          style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w400,
-                            color: _isExpanded ? Colors.black : Colors.white,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 10.0),
-                      if (widget.totalDrink.isNotEmpty) ...[
-                        AutoSizeText(
-                          'Minuman:',
-                          maxFontSize: 18,
-                          minFontSize: 16,
-                          style: GoogleFonts.montserrat(
-                            fontWeight: FontWeight.w400,
-                            color: _isExpanded ? Colors.black : Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        AutoSizeText(
-                          'Kategori Minuman : ${widget.drinkCount}', // Menggunakan properti menuCount
-                          maxFontSize: 14,
-                          minFontSize: 12,
-                          style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w400,
-                            color: _isExpanded ? Colors.black : Colors.white,
-                          ),
-                        ),
-                        AutoSizeText(
-                          'Total Harga: ${widget.drinkTotalPrice}', // Menggunakan properti menuTotalPrice
-                          maxFontSize: 14,
-                          minFontSize: 12,
-                          style: GoogleFonts.roboto(
-                            fontWeight: FontWeight.w400,
-                            color: _isExpanded ? Colors.black : Colors.white,
-                          ),
-                        ),
-                      ],
+                      ),
                     ],
-                  ),
+                    const SizedBox(height: 10.0),
+                    if (widget.totalDrink.isNotEmpty) ...[
+                      AutoSizeText(
+                        'Minuman:',
+                        maxFontSize: 18,
+                        minFontSize: 16,
+                        style: GoogleFonts.montserrat(
+                          fontWeight: FontWeight.w400,
+                          color: _isExpanded ? Colors.black : Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      AutoSizeText(
+                        widget.drinkCount.isEmpty
+                            ? 'Tidak ada minuman yang dipesan'
+                            : 'Kategori Minuman : ${widget.drinkCount}',
+                        maxFontSize: 14,
+                        minFontSize: 12,
+                        style: GoogleFonts.roboto(
+                          fontWeight: FontWeight.w400,
+                          color: _isExpanded ? Colors.black : Colors.white,
+                        ),
+                      ),
+                      AutoSizeText(
+                        widget.drinkTotalPrice.isEmpty
+                            ? ''
+                            : 'Total Harga: ${widget.drinkTotalPrice}',
+                        maxFontSize: 14,
+                        minFontSize: 12,
+                        style: GoogleFonts.roboto(
+                          fontWeight: FontWeight.w400,
+                          color: _isExpanded ? Colors.black : Colors.white,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
               isExpanded: _isExpanded,
