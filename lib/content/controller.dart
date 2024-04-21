@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 
 class OrderController extends GetxController {
   // Menggunakan Map untuk menyimpan harga menu dan minuman
-  final Map<String, int> menuPrices = {};
+  final RxMap menuPrices = {}.obs;
 
-  final Map<String, int> drinkPrices = {};
+  final RxMap drinkPrices = {}.obs;
 
   // Variabel untuk menyimpan pilihan pengguna
   RxList<String> selectedMenu = <String>[].obs;
@@ -30,59 +30,77 @@ class OrderController extends GetxController {
   final box = GetStorage();
   final TextEditingController hKembalian = TextEditingController();
 
-  // Fungsi untuk menambahkan menu baru
   void addMenuPrice(String menuName, int price) {
-    menuPrices[menuName.toLowerCase()] = price;
-    Get.snackbar(
-      'Berhasil',
-      'Menambahkan Menu Baru Berhasil!',
-      duration: const Duration(seconds: 2),
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    update(); // Memperbarui antarmuka pengguna setelah menambahkan menu baru
-  }
-
-  // Fungsi untuk menambahkan minuman baru
-  void addDrinkPrice(String drinkName, int price) {
-    drinkPrices[drinkName.toLowerCase()] = price;
+    box.write('menu_$menuName', price);
     Get.snackbar(
       'Berhasil',
       'Menambahkan Minuman Baru Berhasil!',
       duration: const Duration(seconds: 2),
       snackPosition: SnackPosition.BOTTOM,
     );
-    update(); // Memperbarui antarmuka pengguna setelah menambahkan minuman baru
+    getMenuPricesFromStorage(); // Panggil fungsi untuk mengambil data dari storage
+    // Tampilkan snackbar atau pesan lainnya
   }
 
-  void deleteMenu(String menuName) {
-    menuPrices.remove(menuName.toLowerCase());
+  void addDrinkPrice(String drinkName, int price) {
+    // Menyimpan data minuman dengan kunci yang sesuai
+    box.write('drink_$drinkName', price);
     Get.snackbar(
-      'Peringatan!',
-      'Berhasil menghapus menu',
+      'Berhasil',
+      'Menambahkan Minuman Baru Berhasil!',
       duration: const Duration(seconds: 2),
       snackPosition: SnackPosition.BOTTOM,
     );
-    update(); // Memperbarui antarmuka pengguna setelah menghapus menu
+    getDrinkPricesFromStorage(); // Memperbarui antarmuka pengguna setelah menambahkan minuman baru
+  }
+
+  // Fungsi untuk mengambil data menu dari GetStorage
+  void getMenuPricesFromStorage() {
+    Map<String, int> menuPricesFromStorage = {};
+    box.getKeys().forEach((key) {
+      if (key.startsWith('menu_')) {
+        String menuName = key.substring(5);
+        print(key.toString());
+        int price = box.read(key);
+        menuPricesFromStorage[menuName] = price;
+      }
+    });
+    menuPrices.assignAll(menuPricesFromStorage); // Update menuPrices
+  }
+
+  void getDrinkPricesFromStorage() {
+    Map<String, int> drinkPricesFromStorage = {};
+    box.getKeys().forEach((key) {
+      if (key.startsWith('drink_')) {
+        // Mengambil nama minuman dari kunci
+        String drinkName = key.substring(6);
+        // Mengambil harga dari data yang disimpan
+        int price = box.read(key);
+        drinkPricesFromStorage[drinkName] = price;
+      }
+    });
+    drinkPrices.assignAll(drinkPricesFromStorage); //Update drinkPrices
+  }
+
+  // Fungsi untuk menghapus harga menu
+  void deleteMenu(String menuName) {
+    box.remove('menu_$menuName');
+    getMenuPricesFromStorage(); // Panggil fungsi untuk mengambil data dari storage
+    // Tampilkan snackbar atau pesan lainnya
   }
 
   void deleteDrink(String drinkMenu) {
-    drinkPrices.remove(drinkMenu.toLowerCase());
-    Get.snackbar(
-      'Peringatan!',
-      'Berhasil menghapus menu',
-      duration: const Duration(seconds: 2),
-      snackPosition: SnackPosition.BOTTOM,
-    );
-    update(); // Memperbarui antarmuka pengguna setelah menghapus menu
+    box.remove('drink_$drinkMenu');
+    getDrinkPricesFromStorage();
   }
 
   void toggleDrink(String item) {
     if (selectedDrink.contains(item)) {
       selectedDrink.remove(item);
-      totalDrinkPrice.value -= drinkPrices[item] ?? 0;
+      totalDrinkPrice -= drinkPrices[item] ?? 0;
     } else {
       selectedDrink.add(item);
-      totalDrinkPrice.value += drinkPrices[item] ?? 0;
+      totalDrinkPrice += drinkPrices[item] ?? 0;
     }
     updateTotalPrice(); // Panggil updateTotalPrice setiap kali ada perubahan
   }
@@ -90,15 +108,31 @@ class OrderController extends GetxController {
   void removeDrink(String drink) {
     if (selectedDrink.contains(drink)) {
       selectedDrink.remove(drink);
-      totalDrinkPrice.value -= drinkPrices[drink] ?? 0;
-      calculateTotalPrice();
+      if (drinkPrices.containsKey(drink)) {
+        var drinkPrice = drinkPrices[drink];
+        if (drinkPrice is int) {
+          totalDrinkPrice.value -= drinkPrice;
+          calculateTotalPrice();
+        } else if (drinkPrice is num) {
+          totalDrinkPrice.value -= drinkPrice.toInt();
+          calculateTotalPrice();
+        }
+      }
     }
   }
 
   void addDrink(String drink) {
     selectedDrink.add(drink);
-    totalDrinkPrice.value += drinkPrices[drink] ?? 0;
-    calculateTotalPrice();
+    if (drinkPrices.containsKey(drink)) {
+      var drinkPrice = drinkPrices[drink];
+      if (drinkPrice is int) {
+        totalDrinkPrice.value += drinkPrice;
+        calculateTotalPrice();
+      } else if (drinkPrice is num) {
+        totalDrinkPrice.value += drinkPrice.toInt();
+        calculateTotalPrice();
+      }
+    }
   }
 
 // Panggil updateTotalPrice saat ada perubahan pada pilihan menu atau minuman
@@ -116,15 +150,31 @@ class OrderController extends GetxController {
   void removeMenu(String menu) {
     if (selectedMenu.contains(menu)) {
       selectedMenu.remove(menu);
-      totalMenuPrice.value -= menuPrices[menu] ?? 0;
-      calculateTotalPrice();
+      if (menuPrices.containsKey(menu)) {
+        var menuPrice = menuPrices[menu];
+        if (menuPrice is int) {
+          totalMenuPrice.value -= menuPrice;
+          calculateTotalPrice();
+        } else if (menuPrice is num) {
+          totalMenuPrice.value -= menuPrice.toInt();
+          calculateTotalPrice();
+        }
+      }
     }
   }
 
   void addMenu(String menu) {
     selectedMenu.add(menu);
-    totalMenuPrice.value += menuPrices[menu] ?? 0;
-    calculateTotalPrice();
+    if (menuPrices.containsKey(menu)) {
+      var menuPrice = menuPrices[menu];
+      if (menuPrice is int) {
+        totalMenuPrice.value += menuPrice;
+        calculateTotalPrice();
+      } else if (menuPrice is num) {
+        totalMenuPrice.value += menuPrice.toInt();
+        calculateTotalPrice();
+      }
+    }
   }
 
   // Panggil calculateTotalPrice saat ada perubahan pada pilihan menu atau minuman
@@ -224,6 +274,31 @@ class OrderController extends GetxController {
     return orderHistory;
   }
 
+  void updateTotalRevenue() {
+    // Mendapatkan tanggal hari ini dalam format "yyyy-MM-dd"
+    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Mendapatkan riwayat pemesanan untuk tanggal hari ini
+    List<dynamic>? transactions = box.read<List<dynamic>>(currentDate);
+
+    // Jika ada transaksi, hitung kembali total pendapatan
+    if (transactions != null) {
+      // Variabel untuk menyimpan total pendapatan
+      num totalRevenue = 0;
+
+      // Iterasi setiap transaksi dan tambahkan total pendapatannya
+      for (var transaction in transactions) {
+        totalRevenue += transaction['totalPrice'] ?? 0;
+      }
+
+      // Simpan total pendapatan kembali ke penyimpanan lokal
+      box.write('totalPriceHari_$currentDate', totalRevenue);
+    } else {
+      // Jika tidak ada transaksi, total pendapatan untuk hari tersebut adalah 0
+      box.write('totalPriceHari_$currentDate', 0);
+    }
+  }
+
   void removeOrder(int index) {
     // Mendapatkan tanggal hari ini dalam format "yyyy-MM-dd"
     String currentDate = DateTime.now().toString().split(' ')[0];
@@ -321,16 +396,10 @@ class OrderController extends GetxController {
     uangKembalian.value = price - total;
   }
 
-  // int getTotalMenuPrice() {
-  //   int total = 0;
-  //   for (String menu in selectedMenu) {
-  //     total += menuPrices[menu] ?? 0;
-  //   }
-  //   return total;
-  // }
-
   @override
   void onInit() {
+    getMenuPricesFromStorage();
+    getDrinkPricesFromStorage();
     calculateTotalPriceHari();
     super.onInit();
   }

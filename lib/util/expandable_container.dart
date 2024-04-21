@@ -147,20 +147,37 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                       ),
                       const SizedBox(height: 8.0),
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: widget.menuCount.keys.map((item) {
-                          int quantity = widget.menuCount[item] ?? 0;
-                          int totalPrice = widget.menuTotalPrice[item] ?? 0;
-                          return AutoSizeText(
-                            '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
-                            maxFontSize: 14,
-                            minFontSize: 13,
-                            style: GoogleFonts.roboto(
-                              fontWeight: FontWeight.w400,
-                              color: _isExpanded ? Colors.black : Colors.white,
-                            ),
-                          );
-                        }).toList(),
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: widget.menuCount.isEmpty
+                            ? [
+                                AutoSizeText(
+                                  'Tidak ada pesanan makanan',
+                                  maxFontSize: 14,
+                                  minFontSize: 13,
+                                  style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ]
+                            : widget.menuCount.keys.map((item) {
+                                int quantity = widget.menuCount[item] ?? 0;
+                                int totalPricePerItem =
+                                    controller.menuPrices[item] ?? 0;
+                                int totalPrice = totalPricePerItem *
+                                    quantity; // Total harga per item
+                                return AutoSizeText(
+                                  '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
+                                  maxFontSize: 14,
+                                  minFontSize: 13,
+                                  style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.w400,
+                                    color: _isExpanded
+                                        ? Colors.black
+                                        : Colors.white,
+                                  ),
+                                );
+                              }).toList(),
                       ),
                     ],
                     const SizedBox(height: 10.0),
@@ -177,20 +194,35 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                       const SizedBox(height: 8),
                       // Di dalam widget build:
                       Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: widget.drinkCount.keys.map((item) {
-                          int quantity = widget.drinkCount[item] ?? 0;
-                          int totalPrice = widget.drinkTotalPrice[item] ?? 0;
-                          return AutoSizeText(
-                            '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
-                            maxFontSize: 14,
-                            minFontSize: 13,
-                            style: GoogleFonts.roboto(
-                              fontWeight: FontWeight.w400,
-                              color: _isExpanded ? Colors.black : Colors.white,
-                            ),
-                          );
-                        }).toList(),
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: widget.drinkCount.isEmpty
+                            ? [
+                                AutoSizeText(
+                                  'Tidak ada pesanan minuman',
+                                  maxFontSize: 14,
+                                  minFontSize: 13,
+                                  style: GoogleFonts.aBeeZee(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ]
+                            : widget.drinkCount.keys.map((item) {
+                                int quantity = widget.drinkCount[item] ?? 0;
+                                int totalPrice =
+                                    widget.drinkTotalPrice[item] ?? 0;
+                                return AutoSizeText(
+                                  '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
+                                  maxFontSize: 14,
+                                  minFontSize: 13,
+                                  style: GoogleFonts.roboto(
+                                    fontWeight: FontWeight.w400,
+                                    color: _isExpanded
+                                        ? Colors.black
+                                        : Colors.white,
+                                  ),
+                                );
+                              }).toList(),
                       ),
                     ],
                   ],

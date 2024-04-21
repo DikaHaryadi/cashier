@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:makeci/content/controller.dart';
@@ -14,6 +15,8 @@ class CalendarPemesanan extends StatefulWidget {
 }
 
 class _CalendarPemesananState extends State<CalendarPemesanan> {
+  final box = GetStorage();
+  // DateTime currentDate = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -60,18 +63,7 @@ class _CalendarPemesananState extends State<CalendarPemesanan> {
               return isSameDay(orderController.selectedDate.value, day);
             },
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
-            child: AutoSizeText(
-              'Total Pendapatan Hari Ini\nRp. ${NumberFormat("#,##0.###", "id_ID").format(orderController.totalPrice.value)}',
-              maxFontSize: 18,
-              minFontSize: 16,
-              style: GoogleFonts.aBeeZee(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
+          _pendapatan(),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -160,5 +152,41 @@ class _CalendarPemesananState extends State<CalendarPemesanan> {
         ],
       ),
     )));
+  }
+
+  _pendapatan() {
+    final orderController = Get.find<OrderController>();
+    String formattedDate =
+        DateFormat('yyyy-MM-dd').format(orderController.selectedDate.value);
+
+    final totalPriceHari = box.read('totalPriceHari_$formattedDate');
+
+    if (totalPriceHari != null) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 15.0, bottom: 10.0),
+        child: AutoSizeText(
+          'Total Pendapatan Hari Ini\nRp. ${NumberFormat("#,##0.###", "id_ID").format(totalPriceHari)}',
+          maxFontSize: 18,
+          minFontSize: 16,
+          style: GoogleFonts.aBeeZee(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(left: 15.0),
+        child: AutoSizeText(
+          'Belum ada transaksi',
+          maxFontSize: 18,
+          minFontSize: 16,
+          style: GoogleFonts.aBeeZee(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      );
+    }
   }
 }

@@ -31,6 +31,7 @@ class AddDrinkPage extends StatelessWidget {
                 BoxShadow(offset: Offset(2, 2), color: Colors.black)
               ]),
               child: TextField(
+                key: const Key('drinkNameTextField'),
                 controller: drinkNameController,
                 decoration: const InputDecoration(
                   labelText: 'Nama Menu',
@@ -45,6 +46,7 @@ class AddDrinkPage extends StatelessWidget {
                 BoxShadow(offset: Offset(2, 2), color: Colors.black)
               ]),
               child: TextField(
+                key: const Key('priceTextField'),
                 controller: priceController,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,

@@ -21,6 +21,7 @@ class HomePage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
           children: [
+            Text(controller.box.read('drink_aqua').toString()),
             AutoSizeText(
               'Daftar Menu',
               maxFontSize: 24,
@@ -84,126 +85,121 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10.0),
-            controller.menuPrices.values.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 20 / 5,
-                        child: Image.asset(
-                          'assets/empty.jpg',
+            Obx(
+              () => controller.menuPrices.isEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 20 / 5,
+                          child: Image.asset(
+                            'assets/empty.jpg',
+                          ),
                         ),
-                      ),
-                      AutoSizeText(
-                        'Tidak ada menu makanan',
-                        maxFontSize: 20,
-                        minFontSize: 18,
-                        style: GoogleFonts.aBeeZee(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      )
-                    ],
-                  )
-                : ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: controller.menuPrices.length,
-                    itemBuilder: (context, index) {
-                      // Buat list kunci unik
-                      final List<String> menuKeys =
-                          controller.menuPrices.keys.toList();
-
-                      final String menuName =
-                          controller.menuPrices.keys.toList()[index];
-                      final int menuPrice =
-                          controller.menuPrices.values.toList()[index];
-                      return Dismissible(
-                        key: Key(
-                            menuKeys[index]), // Gunakan kunci unik dari list
-
-                        onDismissed: (direction) {
-                          // Hapus item dari list data dan list kunci
-                          String removedMenuName = menuKeys[index];
-                          menuKeys.removeAt(index);
-                          controller.deleteMenu(removedMenuName);
-                        },
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15.0, vertical: 8.0),
-                            margin: const EdgeInsets.only(bottom: 10.0),
-                            decoration: const BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15.0)),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
+                        AutoSizeText(
+                          'Tidak ada menu makanan',
+                          maxFontSize: 20,
+                          minFontSize: 18,
+                          style: GoogleFonts.aBeeZee(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        )
+                      ],
+                    )
+                  : ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: controller.menuPrices.length,
+                      itemBuilder: (context, index) {
+                        final menuName =
+                            controller.menuPrices.keys.elementAt(index);
+                        final menuPrice =
+                            controller.menuPrices.values.elementAt(index);
+                        return Obx(() => Dismissible(
+                              key: Key(menuName),
+                              onDismissed: (direction) {
+                                controller.deleteMenu(menuName);
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                child: const Icon(Icons.delete,
+                                    color: Colors.white),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0, vertical: 8.0),
+                                margin: const EdgeInsets.only(bottom: 10.0),
+                                decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15.0)),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
                                       color: Colors.grey,
                                       offset: Offset(-2, 2),
                                       blurRadius: 1,
-                                      blurStyle: BlurStyle.normal)
-                                ]),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        menuName.toUpperCase(),
-                                        maxFontSize: 18,
-                                        minFontSize: 16,
-                                        style: GoogleFonts.roboto(
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      AutoSizeText(
-                                        'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
-                                        maxFontSize: 14,
-                                        minFontSize: 12,
-                                        style: GoogleFonts.montserrat(
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    controller.removeMenu(menuName);
-                                  },
-                                ),
-                                const SizedBox(width: 10.0),
-                                Obx(
-                                  () => AutoSizeText(
-                                    '${controller.selectedMenu.where((item) => item == menuName).length}',
-                                    maxFontSize: 14,
-                                    minFontSize: 12,
-                                    style: GoogleFonts.montserrat(
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black,
+                                      blurStyle: BlurStyle.normal,
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                const SizedBox(width: 10.0),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    controller.addMenu(menuName);
-                                  },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AutoSizeText(
+                                            menuName.toUpperCase(),
+                                            maxFontSize: 18,
+                                            minFontSize: 16,
+                                            style: GoogleFonts.roboto(
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          AutoSizeText(
+                                            'Rp. ${NumberFormat("#,##0.###", "id_ID").format(menuPrice)}',
+                                            maxFontSize: 14,
+                                            minFontSize: 12,
+                                            style: GoogleFonts.montserrat(
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove),
+                                      onPressed: () {
+                                        controller.removeMenu(menuName);
+                                      },
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    AutoSizeText(
+                                      '${controller.selectedMenu.where((item) => item == menuName).length}',
+                                      maxFontSize: 14,
+                                      minFontSize: 12,
+                                      style: GoogleFonts.montserrat(
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    IconButton(
+                                      icon: const Icon(Icons.add),
+                                      onPressed: () {
+                                        controller.addMenu(menuName);
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            )),
-                      );
-                    },
-                  ),
+                              ),
+                            ));
+                      },
+                    ),
+            ),
             const SizedBox(height: 10.0),
             controller.menuPrices.values.isEmpty
                 ? const SizedBox.shrink()
@@ -265,123 +261,123 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10.0),
-            controller.drinkPrices.values.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 20 / 5,
-                        child: Image.asset(
-                          'assets/empty.jpg',
+            Obx(
+              () => controller.drinkPrices.isEmpty
+                  ? Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AspectRatio(
+                          aspectRatio: 20 / 5,
+                          child: Image.asset(
+                            'assets/empty.jpg',
+                          ),
                         ),
-                      ),
-                      AutoSizeText(
-                        'Tidak ada menu minuman',
-                        maxFontSize: 20,
-                        minFontSize: 18,
-                        style: GoogleFonts.aBeeZee(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      )
-                    ],
-                  )
-                : ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: controller.drinkPrices.length,
-                    itemBuilder: (context, index) {
-                      // Buat list kunci unik
-                      final List<String> drinkKeys =
-                          controller.drinkPrices.keys.toList();
-                      final String drinkName =
-                          controller.drinkPrices.keys.toList()[index];
-                      final int drinkPrice =
-                          controller.drinkPrices.values.toList()[index];
-                      return Dismissible(
-                        key: Key(
-                            drinkKeys[index]), // Gunakan kunci unik dari list
-
-                        onDismissed: (direction) {
-                          // Hapus item dari list data dan list kunci
-                          String removedDrink = drinkKeys[index];
-                          drinkKeys.removeAt(index);
-                          controller.deleteDrink(removedDrink);
-                        },
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          child: const Icon(Icons.delete, color: Colors.white),
+                        AutoSizeText(
+                          'Tidak ada menu minuman',
+                          maxFontSize: 20,
+                          minFontSize: 18,
+                          style: GoogleFonts.aBeeZee(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15.0, vertical: 8.0),
-                            margin: const EdgeInsets.only(bottom: 10.0),
-                            decoration: const BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15.0)),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
+                      ],
+                    )
+                  : ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: controller.drinkPrices.length,
+                      itemBuilder: (context, index) {
+                        final drinkName =
+                            controller.drinkPrices.keys.elementAt(index);
+                        final drinkPrice =
+                            controller.drinkPrices.values.elementAt(index);
+                        return Obx(() => Dismissible(
+                              key: Key(drinkName),
+                              onDismissed: (direction) {
+                                controller.deleteDrink(drinkName);
+                              },
+                              background: Container(
+                                color: Colors.red,
+                                alignment: Alignment.centerRight,
+                                child: const Icon(Icons.delete,
+                                    color: Colors.white),
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0, vertical: 8.0),
+                                margin: const EdgeInsets.only(bottom: 10.0),
+                                decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15.0)),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
                                       color: Colors.grey,
                                       offset: Offset(-2, 2),
                                       blurRadius: 1,
-                                      blurStyle: BlurStyle.normal)
-                                ]),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        drinkName.toUpperCase(),
-                                        maxFontSize: 18,
-                                        minFontSize: 16,
-                                        style: GoogleFonts.roboto(
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black),
-                                      ),
-                                      AutoSizeText(
-                                        'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
-                                        maxFontSize: 14,
-                                        minFontSize: 12,
-                                        style: GoogleFonts.montserrat(
-                                            fontWeight: FontWeight.w400,
-                                            color: Colors.black),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: () {
-                                    controller.removeDrink(drinkName);
-                                  },
-                                ),
-                                const SizedBox(width: 10.0),
-                                Obx(
-                                  () => AutoSizeText(
-                                    '${controller.selectedDrink.where((item) => item == drinkName).length}',
-                                    maxFontSize: 14,
-                                    minFontSize: 12,
-                                    style: GoogleFonts.montserrat(
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black,
+                                      blurStyle: BlurStyle.normal,
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                const SizedBox(width: 10.0),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () {
-                                    controller.addDrink(drinkName);
-                                  },
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          AutoSizeText(
+                                            drinkName.toUpperCase(),
+                                            maxFontSize: 18,
+                                            minFontSize: 16,
+                                            style: GoogleFonts.roboto(
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          AutoSizeText(
+                                            'Rp. ${NumberFormat("#,##0.###", "id_ID").format(drinkPrice)}',
+                                            maxFontSize: 14,
+                                            minFontSize: 12,
+                                            style: GoogleFonts.montserrat(
+                                              fontWeight: FontWeight.w400,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove),
+                                      onPressed: () {
+                                        controller.removeDrink(drinkName);
+                                      },
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    AutoSizeText(
+                                      '${controller.selectedDrink.where((item) => item == drinkName).length}',
+                                      maxFontSize: 14,
+                                      minFontSize: 12,
+                                      style: GoogleFonts.montserrat(
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    IconButton(
+                                      icon: const Icon(Icons.add),
+                                      onPressed: () {
+                                        controller.addDrink(drinkName);
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            )),
-                      );
-                    },
-                  ),
+                              ),
+                            ));
+                      },
+                    ),
+            ),
             const SizedBox(height: 10.0),
             controller.drinkPrices.values.isEmpty
                 ? const SizedBox.shrink()
@@ -425,7 +421,7 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
             const SizedBox(height: 10.0),
-            controller.drinkPrices.values.isEmpty ||
+            controller.drinkPrices.values.isEmpty &&
                     controller.menuPrices.values.isEmpty
                 ? const SizedBox.shrink()
                 : Container(
@@ -643,23 +639,6 @@ class HomePage extends StatelessWidget {
                 ),
               ],
             ),
-            controller.orderHistory.isEmpty
-                ? const SizedBox.shrink()
-                : TextButton(
-                    onPressed: () {
-                      Get.toNamed('/histori-perweek');
-                    },
-                    child: const Align(
-                      alignment: Alignment.centerLeft,
-                      child: AutoSizeText('Cek Histori Pemesanan Perminggu',
-                          maxFontSize: 16,
-                          minFontSize: 14,
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w400)),
-                    ),
-                  ),
             const SizedBox(height: 10.0),
             GetBuilder<OrderController>(
               builder: (controller) {
@@ -696,15 +675,28 @@ class HomePage extends StatelessWidget {
                         for (var order in orders) {
                           // Menghitung total harga masing-masing menu
                           order['selectedMenu'].forEach((menu) {
-                            menuTotalPrice[menu] = (menuTotalPrice[menu] ?? 0) +
-                                (controller.menuPrices[menu] ?? 0);
+                            var menuPrice = controller.menuPrices[menu];
+                            if (menuPrice is int) {
+                              menuTotalPrice[menu] =
+                                  (menuTotalPrice[menu] ?? 0) + menuPrice;
+                            } else if (menuPrice is num) {
+                              menuTotalPrice[menu] =
+                                  (menuTotalPrice[menu] ?? 0) +
+                                      menuPrice.toInt();
+                            }
                           });
 
                           // Menghitung total harga masing-masing minuman
                           order['selectedDrink'].forEach((drink) {
-                            drinkTotalPrice[drink] =
-                                (drinkTotalPrice[drink] ?? 0) +
-                                    (controller.drinkPrices[drink] ?? 0);
+                            var drinkPrice = controller.drinkPrices[drink];
+                            if (drinkPrice is int) {
+                              drinkTotalPrice[drink] =
+                                  (drinkTotalPrice[drink] ?? 0) + drinkPrice;
+                            } else if (drinkPrice is num) {
+                              drinkTotalPrice[drink] =
+                                  (drinkTotalPrice[drink] ?? 0) +
+                                      drinkPrice.toInt();
+                            }
                           });
                         }
 
@@ -735,6 +727,7 @@ class HomePage extends StatelessWidget {
                               direction: DismissDirection.endToStart,
                               onDismissed: (direction) {
                                 controller.removeOrder(index);
+                                controller.updateTotalRevenue();
                               },
                               background: Container(
                                 color: Colors.red,
@@ -779,6 +772,21 @@ class HomePage extends StatelessWidget {
                   },
                 );
               },
+            ),
+            TextButton(
+              onPressed: () {
+                Get.toNamed('/histori-perweek');
+              },
+              child: const Align(
+                alignment: Alignment.center,
+                child: AutoSizeText('Cek Histori Pemesanan Perminggu',
+                    maxFontSize: 16,
+                    minFontSize: 14,
+                    style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w400)),
+              ),
             ),
           ],
         ),

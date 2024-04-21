@@ -1,30 +1,47 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:makeci/main.dart';
+import 'package:get/get.dart';
+import 'package:makeci/content/controller.dart';
+import 'package:makeci/util/add_drink.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  late OrderController orderController;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  setUp(() {
+    orderController = OrderController();
+    Get.put(orderController);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('AddDrinkPage UI Test', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: AddDrinkPage()));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Find text fields
+    final drinkNameTextField = find.byKey(const Key('drinkNameTextField'));
+    final priceTextField = find.byKey(const Key('priceTextField'));
+
+    // Find elevated button
+    final addButton = find.text('Tambahkan Menu');
+
+    // Enter text into text fields
+    await tester.enterText(drinkNameTextField, 'Test Drink');
+    await tester.enterText(priceTextField, '10000');
+
+    // Verify if addDrinkPrice method is called after tapping add button
+    expect(
+        orderController.selectedDrink.isEmpty, true); // Expect before tapping
+
+    // Tap the add button
+    await tester.tap(addButton);
+    await tester.pumpAndSettle();
+
+    // Verify if addDrinkPrice method is called after tapping add button
+    expect(
+        orderController.selectedDrink.isNotEmpty, true); // Expect after tapping
+
+    // Verify if addDrinkPrice method is called with correct parameters
+    expect(orderController.selectedDrink.contains('Test Drink'),
+        true); // Expect drink name to be added
+    expect(orderController.totalDrinkPrice.value,
+        10000); // Expect price to be added
   });
 }
