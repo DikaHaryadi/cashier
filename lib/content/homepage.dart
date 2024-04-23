@@ -21,7 +21,6 @@ class HomePage extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
           children: [
-            Text(controller.box.read('drink_aqua').toString()),
             AutoSizeText(
               'Daftar Menu',
               maxFontSize: 24,
@@ -118,6 +117,7 @@ class HomePage extends StatelessWidget {
                               key: Key(menuName),
                               onDismissed: (direction) {
                                 controller.deleteMenu(menuName);
+                                controller.updateTotalPrice();
                               },
                               background: Container(
                                 color: Colors.red,
@@ -201,46 +201,46 @@ class HomePage extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 10.0),
-            controller.menuPrices.values.isEmpty
-                ? const SizedBox.shrink()
-                : Obx(
-                    () => Container(
-                        padding: const EdgeInsets.symmetric(vertical: 15.0),
-                        color: controller.totalMenuPrice.value == 0
-                            ? Colors.red
-                            : Colors.green.shade400,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            AutoSizeText(
-                              'Total Makanan',
-                              maxFontSize: 14,
-                              minFontSize: 12,
-                              style: GoogleFonts.montserrat(
-                                fontWeight: controller.totalMenuPrice.value == 0
-                                    ? FontWeight.w400
-                                    : FontWeight.bold,
-                                color: controller.totalMenuPrice.value == 0
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
+            Obx(
+              () => controller.menuPrices.values.isEmpty
+                  ? const SizedBox.shrink()
+                  : Container(
+                      padding: const EdgeInsets.symmetric(vertical: 15.0),
+                      color: controller.totalMenuPrice.value == 0
+                          ? Colors.red
+                          : Colors.green.shade400,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          AutoSizeText(
+                            'Total Makanan',
+                            maxFontSize: 14,
+                            minFontSize: 12,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: controller.totalMenuPrice.value == 0
+                                  ? FontWeight.w400
+                                  : FontWeight.bold,
+                              color: controller.totalMenuPrice.value == 0
+                                  ? Colors.black
+                                  : Colors.white,
                             ),
-                            AutoSizeText(
-                              'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalMenuPrice.value)}',
-                              maxFontSize: 14,
-                              minFontSize: 12,
-                              style: GoogleFonts.montserrat(
-                                fontWeight: controller.totalMenuPrice.value == 0
-                                    ? FontWeight.w400
-                                    : FontWeight.bold,
-                                color: controller.totalMenuPrice.value == 0
-                                    ? Colors.black
-                                    : Colors.white,
-                              ),
+                          ),
+                          AutoSizeText(
+                            'Rp. ${NumberFormat("#,##0.###", "id_ID").format(controller.totalMenuPrice.value)}',
+                            maxFontSize: 14,
+                            minFontSize: 12,
+                            style: GoogleFonts.montserrat(
+                              fontWeight: controller.totalMenuPrice.value == 0
+                                  ? FontWeight.w400
+                                  : FontWeight.bold,
+                              color: controller.totalMenuPrice.value == 0
+                                  ? Colors.black
+                                  : Colors.white,
                             ),
-                          ],
-                        )),
-                  ),
+                          ),
+                        ],
+                      )),
+            ),
             const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -379,10 +379,10 @@ class HomePage extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 10.0),
-            controller.drinkPrices.values.isEmpty
-                ? const SizedBox.shrink()
-                : Obx(
-                    () => Container(
+            Obx(
+              () => controller.drinkPrices.values.isEmpty
+                  ? const SizedBox.shrink()
+                  : Container(
                       padding: const EdgeInsets.symmetric(vertical: 15.0),
                       color: controller.totalDrinkPrice.value == 0
                           ? Colors.red
@@ -419,24 +419,26 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
+            ),
             const SizedBox(height: 10.0),
-            controller.drinkPrices.values.isEmpty &&
-                    controller.menuPrices.values.isEmpty
-                ? const SizedBox.shrink()
-                : Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 10.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(
+            Obx(
+              () => controller.drinkPrices.isEmpty &&
+                      controller.menuPrices.isEmpty
+                  ? const SizedBox.shrink()
+                  : Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 10.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(
                           color: Colors.black,
                           width: 1,
-                          strokeAlign: BorderSide.strokeAlignOutside),
-                    ),
-                    child: Column(
-                      children: [
-                        Align(
+                          strokeAlign: BorderSide.strokeAlignOutside,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Align(
                             alignment: Alignment.centerLeft,
                             child: AutoSizeText(
                               'Total Pemesanan',
@@ -446,13 +448,13 @@ class HomePage extends StatelessWidget {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
-                            )),
-                        const SizedBox(height: 5.0),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Obx(
-                              () => Visibility(
+                            ),
+                          ),
+                          const SizedBox(height: 5.0),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Visibility(
                                 visible: controller.totalPrice.value > 0,
                                 child: GestureDetector(
                                   onTap: () => controller.resetOrder(),
@@ -476,23 +478,25 @@ class HomePage extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            ),
-                            Obx(
-                              () => Expanded(
+                              Expanded(
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      vertical: 15.0, horizontal: 8.0),
+                                    vertical: 15.0,
+                                    horizontal: 8.0,
+                                  ),
                                   decoration: BoxDecoration(
-                                      color: controller.totalPrice.value == 0
-                                          ? Colors.red
-                                          : Colors.white,
-                                      boxShadow: const [
-                                        BoxShadow(
-                                            blurRadius: 1,
-                                            color: Colors.black,
-                                            blurStyle: BlurStyle.inner,
-                                            offset: Offset(-2, 2))
-                                      ]),
+                                    color: controller.totalPrice.value == 0
+                                        ? Colors.red
+                                        : Colors.white,
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        blurRadius: 1,
+                                        color: Colors.black,
+                                        blurStyle: BlurStyle.inner,
+                                        offset: Offset(-2, 2),
+                                      )
+                                    ],
+                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -511,37 +515,38 @@ class HomePage extends StatelessWidget {
                                         maxFontSize: 14,
                                         minFontSize: 12,
                                         style: GoogleFonts.aBeeZee(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black38,
-                                            shadows: [
-                                              BoxShadow(
-                                                  offset: const Offset(2, 0),
-                                                  color: controller.totalPrice
-                                                              .value ==
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black38,
+                                          shadows: [
+                                            BoxShadow(
+                                              offset: const Offset(2, 0),
+                                              color:
+                                                  controller.totalPrice.value ==
                                                           0
                                                       ? Colors.white
                                                       : Colors.green,
-                                                  blurRadius: .5,
-                                                  blurStyle: BlurStyle.outer)
-                                            ]),
+                                              blurRadius: .5,
+                                              blurStyle: BlurStyle.outer,
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(height: 8.0),
-                        Obx(
-                          () => Visibility(
+                            ],
+                          ),
+                          const SizedBox(height: 8.0),
+                          Visibility(
                             visible: controller.totalPrice.value > 0,
                             child: ElevatedButton(
                               onPressed: () => controller.saveTransaction(),
                               style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green.shade400,
-                                  elevation: 4,
-                                  shadowColor: Colors.grey.shade400),
+                                backgroundColor: Colors.green.shade400,
+                                elevation: 4,
+                                shadowColor: Colors.grey.shade400,
+                              ),
                               child: Center(
                                 child: AutoSizeText(
                                   'CheckOut',
@@ -555,10 +560,10 @@ class HomePage extends StatelessWidget {
                               ),
                             ),
                           ),
-                        )
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+            ),
             const SizedBox(height: 20.0),
             Obx(
               () => Visibility(
@@ -727,7 +732,6 @@ class HomePage extends StatelessWidget {
                               direction: DismissDirection.endToStart,
                               onDismissed: (direction) {
                                 controller.removeOrder(index);
-                                controller.updateTotalRevenue();
                               },
                               background: Container(
                                 color: Colors.red,
@@ -756,13 +760,6 @@ class HomePage extends StatelessWidget {
                                 drinkCount: drinkCount,
                                 menuTotalPrice: menuTotalPrice,
                                 drinkTotalPrice: drinkTotalPrice,
-                                payMenu: order['selectedMenu']
-                                    .map((menu) => controller.menuPrices[menu])
-                                    .toList(),
-                                payDrink: order['selectedDrink']
-                                    .map((drink) =>
-                                        controller.drinkPrices[drink])
-                                    .toList(),
                               ),
                             );
                           },

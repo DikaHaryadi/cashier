@@ -11,9 +11,7 @@ class ExpandableContainer extends StatefulWidget {
   final String totalMenu;
   final String totalDrink;
   final List<dynamic> menu;
-  final List<dynamic> payMenu;
   final List<dynamic> drink;
-  final List<dynamic> payDrink;
   final Map<String, int> menuCount;
   final Map<String, int> drinkCount;
   final Map<String, int> menuTotalPrice;
@@ -27,8 +25,6 @@ class ExpandableContainer extends StatefulWidget {
     required this.totalDrink,
     required this.menu,
     required this.drink,
-    required this.payMenu,
-    required this.payDrink,
     required this.menuCount,
     required this.drinkCount,
     required this.menuTotalPrice,
@@ -209,8 +205,10 @@ class _ExpandableContainerState extends State<ExpandableContainer>
                               ]
                             : widget.drinkCount.keys.map((item) {
                                 int quantity = widget.drinkCount[item] ?? 0;
-                                int totalPrice =
-                                    widget.drinkTotalPrice[item] ?? 0;
+                                int totalPricePerItem =
+                                    controller.drinkPrices[item] ?? 0;
+                                int totalPrice = totalPricePerItem *
+                                    quantity; // Total harga per item
                                 return AutoSizeText(
                                   '$item: $quantity x | Rp. ${NumberFormat("#,##0.###", "id_ID").format(totalPrice)}',
                                   maxFontSize: 14,

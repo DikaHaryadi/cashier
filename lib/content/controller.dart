@@ -60,7 +60,6 @@ class OrderController extends GetxController {
     box.getKeys().forEach((key) {
       if (key.startsWith('menu_')) {
         String menuName = key.substring(5);
-        print(key.toString());
         int price = box.read(key);
         menuPricesFromStorage[menuName] = price;
       }
@@ -72,9 +71,7 @@ class OrderController extends GetxController {
     Map<String, int> drinkPricesFromStorage = {};
     box.getKeys().forEach((key) {
       if (key.startsWith('drink_')) {
-        // Mengambil nama minuman dari kunci
         String drinkName = key.substring(6);
-        // Mengambil harga dari data yang disimpan
         int price = box.read(key);
         drinkPricesFromStorage[drinkName] = price;
       }
@@ -87,11 +84,13 @@ class OrderController extends GetxController {
     box.remove('menu_$menuName');
     getMenuPricesFromStorage(); // Panggil fungsi untuk mengambil data dari storage
     // Tampilkan snackbar atau pesan lainnya
+    updateTotalPrice();
   }
 
   void deleteDrink(String drinkMenu) {
     box.remove('drink_$drinkMenu');
     getDrinkPricesFromStorage();
+    updateTotalPrice();
   }
 
   void toggleDrink(String item) {
@@ -111,10 +110,12 @@ class OrderController extends GetxController {
       if (drinkPrices.containsKey(drink)) {
         var drinkPrice = drinkPrices[drink];
         if (drinkPrice is int) {
-          totalDrinkPrice.value -= drinkPrice;
+          totalDrinkPrice.value -=
+              drinkPrice; // Kurangi harga minuman sesuai dengan jumlah yang dihapus
           calculateTotalPrice();
         } else if (drinkPrice is num) {
-          totalDrinkPrice.value -= drinkPrice.toInt();
+          totalDrinkPrice.value -= drinkPrice
+              .toInt(); // Kurangi harga minuman sesuai dengan jumlah yang dihapus
           calculateTotalPrice();
         }
       }
@@ -126,10 +127,12 @@ class OrderController extends GetxController {
     if (drinkPrices.containsKey(drink)) {
       var drinkPrice = drinkPrices[drink];
       if (drinkPrice is int) {
-        totalDrinkPrice.value += drinkPrice;
+        totalDrinkPrice.value +=
+            drinkPrice; // Tambahkan harga minuman sesuai dengan jumlah yang ditambahkan
         calculateTotalPrice();
       } else if (drinkPrice is num) {
-        totalDrinkPrice.value += drinkPrice.toInt();
+        totalDrinkPrice.value += drinkPrice
+            .toInt(); // Tambahkan harga minuman sesuai dengan jumlah yang ditambahkan
         calculateTotalPrice();
       }
     }
@@ -177,16 +180,27 @@ class OrderController extends GetxController {
     }
   }
 
-  // Panggil calculateTotalPrice saat ada perubahan pada pilihan menu atau minuman
+// Panggil calculateTotalPrice saat ada perubahan pada pilihan menu atau minuman
   void updateTotalPrice() {
     // Panggil metode untuk menghitung total harga
     calculateTotalPrice();
+
+    bool areBothEmpty = drinkPrices.values.isEmpty || menuPrices.values.isEmpty;
+
+    updateTotalPriceBasedOnEmptyPrices(areBothEmpty);
 
     // Simpan total harga harian jika sudah lewat jam 22:00
     if (DateTime.now().hour >= 22) {
       calculateTotalPriceHari();
     }
     update();
+  }
+
+  void updateTotalPriceBasedOnEmptyPrices(bool areBothEmpty) {
+    if (areBothEmpty) {
+      totalPrice.value = 0;
+      resetOrder(); // Menjalankan resetOrder() jika kedua drinkPrices dan menuPrices kosong
+    }
   }
 
 // Metode untuk menghitung total harga
